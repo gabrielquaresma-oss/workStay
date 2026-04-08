@@ -536,8 +536,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 32,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Banner at top of search page, dismissible per session. Links to /survey/{bookingId}."
     },
     {
       "id": "US-033",

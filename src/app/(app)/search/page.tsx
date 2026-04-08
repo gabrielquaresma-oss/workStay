@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotelCard } from "@/components/hotel/hotel-card";
+import { SurveyBanner } from "@/components/survey/survey-banner";
 import type { HotelSearchResult } from "@/types/hotel";
 
 export default function SearchPage() {
@@ -67,6 +68,9 @@ export default function SearchPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
+      {/* Survey banner */}
+      <SurveyBanner />
+
       {/* Search bar */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">

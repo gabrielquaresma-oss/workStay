@@ -347,6 +347,13 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Steps auto-advance on selection for star ratings and option buttons
 ---
 
+## 2026-04-08 - US-032
+- What was implemented: Survey banner component integrated into search page
+- Files changed:
+  - src/components/survey/survey-banner.tsx (new)
+  - src/app/(app)/search/page.tsx (updated — added SurveyBanner import and render)
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
