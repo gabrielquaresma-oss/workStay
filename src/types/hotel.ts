@@ -36,6 +36,7 @@ export interface HotelSearchResult {
   stayscore: StayScoreResult | null;
   price_per_night: number | null;
   highlights: string[];
+  photo_urls?: string[];
 }
 
 export interface FeaturedHotelCard {

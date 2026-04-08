@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import type { FeaturedSection, FeaturedHotelCard } from "@/types/hotel";
 
 // Real hotels with Google Place IDs — clicking navigates to detail page via Google Places API
@@ -156,11 +157,13 @@ const ALL_HOTELS: (FeaturedHotelCard & { city: string; scores: { wifi: number; r
   },
 ];
 
-function toCard(h: typeof ALL_HOTELS[number]): FeaturedHotelCard {
+function toCard(h: typeof ALL_HOTELS[number], realScore?: number): FeaturedHotelCard {
+  const score = realScore ?? h.workScore;
+  const scoreColor = score >= 80 ? "green" : score >= 60 ? "yellow" : "red";
   return {
     id: h.id, name: h.name, location: h.location,
-    imageUrl: h.imageUrl, workScore: h.workScore,
-    scoreColor: h.scoreColor, tags: h.tags, pricePerNight: h.pricePerNight,
+    imageUrl: h.imageUrl, workScore: score,
+    scoreColor, tags: h.tags, pricePerNight: h.pricePerNight,
   };
 }
 
@@ -205,12 +208,36 @@ export async function GET(request: Request) {
     ? ALL_HOTELS.filter((h) => h.city.toLowerCase().includes(city.toLowerCase()))
     : ALL_HOTELS;
 
+  // Fetch real scores from DB for featured hotels (if they've been computed before)
+  const placeIds = filtered.map((h) => h.id);
+  const realScores = await prisma.stayScore.findMany({
+    where: {
+      hotel: { google_place_id: { in: placeIds } },
+      expires_at: { gt: new Date() },
+    },
+    orderBy: { calculated_at: "desc" },
+    distinct: ["hotel_id"],
+    select: {
+      total_score: true,
+      hotel: { select: { google_place_id: true } },
+    },
+  });
+
+  const scoreMap = new Map<string, number>();
+  for (const s of realScores) {
+    scoreMap.set(s.hotel.google_place_id, s.total_score);
+  }
+
   const sections: FeaturedSection[] = SECTION_CONFIGS.map((config) => {
     let hotels: typeof filtered;
 
     switch (config.id) {
       case "top-rated":
-        hotels = [...filtered].sort((a, b) => b.workScore - a.workScore);
+        hotels = [...filtered].sort((a, b) => {
+          const scoreA = scoreMap.get(a.id) ?? a.workScore;
+          const scoreB = scoreMap.get(b.id) ?? b.workScore;
+          return scoreB - scoreA;
+        });
         break;
       case "coworking-inside":
         hotels = filtered.filter((h) => h.scores.hotel >= 75);
@@ -228,7 +255,7 @@ export async function GET(request: Request) {
         hotels = filtered;
     }
 
-    return { ...config, hotels: hotels.map(toCard) };
+    return { ...config, hotels: hotels.map((h) => toCard(h, scoreMap.get(h.id))) };
   });
 
   return Response.json({ sections });

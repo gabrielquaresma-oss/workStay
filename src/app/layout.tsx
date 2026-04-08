@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "StayScore - Inteligência Hoteleira Corporativa",
+  title: "workStay - Inteligência Hoteleira Corporativa",
   description: "Plataforma de inteligência hoteleira para viajantes corporativos",
 };
 

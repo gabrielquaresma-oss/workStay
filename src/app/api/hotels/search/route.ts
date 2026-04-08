@@ -1,5 +1,5 @@
 import { getOrCreateUser } from "@/lib/auth";
-import { searchHotels, getPlaceDetails } from "@/lib/google-places";
+import { searchHotels, getPlaceDetails, getPhotoUrl } from "@/lib/google-places";
 import { getOrComputeStayScore } from "@/lib/sentiment-cache";
 import { generatePrices } from "@/lib/price-simulator";
 import type { HotelSearchResult, StayScoreWeights } from "@/types/hotel";
@@ -89,6 +89,8 @@ export async function GET(request: Request) {
                   (p) => p.date === new Date().toISOString().slice(0, 10)
                 );
 
+                const photoRefs = (details.photos ?? []).map((p) => p.name);
+
                 return {
                   hotel: {
                     id: place.id,
@@ -101,12 +103,13 @@ export async function GET(request: Request) {
                     longitude: details.location?.longitude ?? 0,
                     google_rating: details.rating ?? null,
                     google_total_reviews: details.userRatingCount ?? null,
-                    photo_references: (details.photos ?? []).map((p) => p.name),
+                    photo_references: photoRefs,
                     amenities: null,
                   },
                   stayscore: stayScore,
                   price_per_night: todayPrice?.price ?? null,
                   highlights: [],
+                  photo_urls: photoRefs.slice(0, 3).map((ref) => getPhotoUrl(ref, 400)),
                 };
               } catch {
                 return null;

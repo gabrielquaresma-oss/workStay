@@ -27,19 +27,28 @@ function getHighlights(result: HotelSearchResult): { label: string; color: strin
 }
 
 export function HotelCard({ result }: HotelCardProps) {
-  const { hotel, stayscore, price_per_night } = result;
+  const { hotel, stayscore, price_per_night, photo_urls } = result;
   const highlights = getHighlights(result);
+  const photoUrl = photo_urls?.[0];
 
   return (
     <Link href={`/hotel/${hotel.id}`} className="block group">
       <div className="flex flex-col sm:flex-row bg-white rounded-xl border overflow-hidden transition-all hover:shadow-md hover:border-primary/20">
         {/* Image */}
         <div className="sm:w-[220px] h-[160px] sm:h-auto bg-muted shrink-0 relative overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-[#2872FA]/8 to-[#009EFB]/5 flex items-center justify-center">
-            <span className="text-5xl font-bold text-primary/12">
-              {hotel.name.charAt(0)}
-            </span>
-          </div>
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={hotel.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#2872FA]/8 to-[#009EFB]/5 flex items-center justify-center">
+              <span className="text-5xl font-bold text-primary/12">
+                {hotel.name.charAt(0)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content */}

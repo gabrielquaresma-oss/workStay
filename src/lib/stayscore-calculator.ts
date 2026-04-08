@@ -33,6 +33,8 @@ interface CalculatorInput {
   avgPricePerNight: number | null;
   cityAvgPrice: number | null;
   customWeights?: StayScoreWeights;
+  /** When true and no nearbyWorkspaces data, estimate from location_business sentiment + google rating */
+  estimateCoworking?: boolean;
 }
 
 function clamp(value: number, min = 0, max = 100): number {
@@ -144,33 +146,46 @@ function calculateHotelWorkspaceScore(
 
 /**
  * Coworking proximity score: count (max 40pts) + closest distance (max 30pts) + avg rating (max 30pts)
+ * When no workspace data is available, estimates based on location_business sentiment + google rating.
  */
 function calculateCoworkingProximityScore(
-  nearbyWorkspaces: NearbyWorkspaceData[]
+  nearbyWorkspaces: NearbyWorkspaceData[],
+  sentiment: SentimentResult | null,
+  googleRating: number | null
 ): number {
-  if (nearbyWorkspaces.length === 0) return 0;
+  if (nearbyWorkspaces.length > 0) {
+    // Count score: max 40pts, 10pts per workspace up to 4
+    const countScore = Math.min(40, nearbyWorkspaces.length * 10);
 
-  // Count score: max 40pts, 10pts per workspace up to 4
-  const countScore = Math.min(40, nearbyWorkspaces.length * 10);
+    // Closest distance score: max 30pts
+    // 0m = 30pts, 500m = 15pts, 1000m+ = 0pts
+    const closestDistance = Math.min(
+      ...nearbyWorkspaces.map((w) => w.distance_meters)
+    );
+    const distanceScore = clamp(30 * (1 - closestDistance / 1000), 0, 30);
 
-  // Closest distance score: max 30pts
-  // 0m = 30pts, 500m = 15pts, 1000m+ = 0pts
-  const closestDistance = Math.min(
-    ...nearbyWorkspaces.map((w) => w.distance_meters)
-  );
-  const distanceScore = clamp(30 * (1 - closestDistance / 1000), 0, 30);
+    // Average rating score: max 30pts (1-5 → 0-30)
+    const ratings = nearbyWorkspaces
+      .filter((w) => w.google_rating != null)
+      .map((w) => w.google_rating!);
+    const avgRating =
+      ratings.length > 0
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : 3;
+    const ratingScore = ((avgRating - 1) / 4) * 30;
 
-  // Average rating score: max 30pts (1-5 → 0-30)
-  const ratings = nearbyWorkspaces
-    .filter((w) => w.google_rating != null)
-    .map((w) => w.google_rating!);
-  const avgRating =
-    ratings.length > 0
-      ? ratings.reduce((a, b) => a + b, 0) / ratings.length
-      : 3;
-  const ratingScore = ((avgRating - 1) / 4) * 30;
+    return clamp(countScore + distanceScore + ratingScore);
+  }
 
-  return clamp(countScore + distanceScore + ratingScore);
+  // Estimation fallback: use location_business sentiment (how central/business-friendly
+  // reviewers say it is) + google rating as proxy for coworking proximity.
+  // Hotels in well-rated business areas tend to have coworkings nearby.
+  const locationScore = sentiment ? sentiment.aggregated.location_business * 100 : 50;
+  const ratingBonus = googleRating ? ((googleRating - 1) / 4) * 30 : 15;
+
+  // Blend: 60% location sentiment, 40% rating-based estimate
+  // This gives a reasonable middle-ground (typically 40-70) instead of 0
+  return clamp(locationScore * 0.6 + ratingBonus * 0.4 + 10);
 }
 
 /**
@@ -243,7 +258,9 @@ export function calculateStayScore(input: CalculatorInput): StayScoreResult {
   const hotelWorkspaceScore = calculateHotelWorkspaceScore(input.sentiment);
 
   const coworkingProximityScore = calculateCoworkingProximityScore(
-    input.nearbyWorkspaces
+    input.nearbyWorkspaces,
+    input.sentiment,
+    input.googleRating
   );
 
   const priceProductivityScore = calculatePriceProductivityScore(

@@ -71,7 +71,7 @@ export async function getOrComputeStayScore(
     orderBy: { calculated_at: "desc" },
   });
 
-  if (cachedScore) {
+  if (cachedScore && cachedScore.coworking_proximity_score > 0) {
     // Reconstruct sentiment from cached hotel reviews
     const cachedReviews = await prisma.hotelReview.findMany({
       where: { hotel_id: hotel.id, sentiment_analysis: { not: Prisma.JsonNullValueFilter.DbNull } },
