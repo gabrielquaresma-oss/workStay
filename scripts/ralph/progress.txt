@@ -112,3 +112,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Always extract JSON from response text with regex since Claude may wrap it in markdown.
   - Neutral fallback result (all 0.5 scores) is used for empty reviews or parse failures.
 ---
+
+## 2026-04-08 - US-008
+- What was implemented: StayScore calculator algorithm with 6 sub-score functions and weighted total
+- Files changed:
+  - src/lib/stayscore-calculator.ts (new — calculateStayScore + 6 sub-score functions)
+- **Learnings for future iterations:**
+  - StayScore weights: wifi=0.25, room=0.20, hotel=0.15, coworking=0.15, price=0.15, traveler=0.10
+  - Survey influence grows with volume: 20% at 1 survey, +5% per survey up to 70%
+  - Workspace adequacy mapping: SIM=100, PARCIAL=50, NAO=10
+  - Coworking proximity: count(max40) + distance(max30) + rating(max30) = max 100
+  - Price-productivity uses efficiency index: avgProductivity / normalizedPrice
+  - All sub-scores clamped to 0-100 before weighting
+---
