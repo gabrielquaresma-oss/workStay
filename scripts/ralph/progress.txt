@@ -286,6 +286,13 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - `setOptions()` must only be called once globally (use module-level flag)
 ---
 
+## 2026-04-08 - US-025
+- What was implemented: Workspace card and list components with hover highlight
+- Files changed:
+  - src/components/worknearby/workspace-card.tsx (new)
+  - src/components/worknearby/workspace-list.tsx (new)
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
