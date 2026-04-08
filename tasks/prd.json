@@ -180,8 +180,8 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": "Use real hotel names and realistic coordinates for BH and SP."
+      "passes": true,
+      "notes": "12 hotels (6 BH, 6 SP) with realistic names/coords. 7 bookings, 4 surveys, 5 nearby workspaces. prisma.seed configured with tsx."
     },
     {
       "id": "US-012",

@@ -136,6 +136,19 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Determinism achieved via string hash → LCG PRNG seeded by hotel+city+month
 ---
 
+## 2026-04-08 - US-011
+- What was implemented: Database seed with demo data — 12 hotels, 7 bookings, 4 surveys, price entries, nearby workspaces
+- Files changed:
+  - prisma/seed.ts (new — full seed script with upserts)
+  - package.json (added prisma.seed config, installed tsx)
+- **Learnings for future iterations:**
+  - Prisma seed runs via `tsx prisma/seed.ts` configured in package.json `prisma.seed`
+  - Seed uses `upsert` to be idempotent — safe to re-run
+  - Demo IDs match auth.ts: `demo-company-001`, `demo-traveler-001`, `demo-manager-001`, `demo-finance-001`
+  - Hotel IDs are human-readable (e.g., `hotel-mercure-bh-lourdes`) for easier debugging
+  - PriceEntry dates use midnight UTC (`setHours(0,0,0,0)`) to avoid timezone issues with `@db.Date`
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
