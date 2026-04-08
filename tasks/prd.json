@@ -448,8 +448,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 27,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Horizontal grid of 7 day cells with color coding, selected border, best date star."
     },
     {
       "id": "US-028",
