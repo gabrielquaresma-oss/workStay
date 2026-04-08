@@ -213,6 +213,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Score <50 gets red background highlight
 ---
 
+## 2026-04-08 - US-018
+- What was implemented: Hotel card component for search results with image, metrics, price, highlights
+- Files changed:
+  - src/components/hotel/hotel-card.tsx (new)
+- **Learnings for future iterations:**
+  - Highlight tags derived from score thresholds: wifi>=80→green, hotel>=75→blue, coworking>=70→purple
+  - Photo placeholder uses hotel initial letter — actual photos would need Google Places photo API proxy
+  - Card links to /hotel/{hotel.id}
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
