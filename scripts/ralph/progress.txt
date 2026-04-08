@@ -100,3 +100,15 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Photo URLs follow pattern: `{BASE_URL}/{photoName}/media?maxWidthPx=N&key=KEY`
   - searchNearby uses `includedTypes` (array) while searchText uses `includedType` (string)
 ---
+
+## 2026-04-08 - US-007
+- What was implemented: Claude API client singleton and sentiment analyzer for hotel reviews
+- Files changed:
+  - src/lib/claude-client.ts (new — Anthropic SDK client singleton)
+  - src/lib/sentiment-analyzer.ts (new — analyzeReviews function with structured JSON output)
+- **Learnings for future iterations:**
+  - @anthropic-ai/sdk v0.85.0 exports `Anthropic` as default. Use `import Anthropic from "@anthropic-ai/sdk"`.
+  - Claude response content blocks need type narrowing — use `.find(b => b.type === "text")`.
+  - Always extract JSON from response text with regex since Claude may wrap it in markdown.
+  - Neutral fallback result (all 0.5 scores) is used for empty reviews or parse failures.
+---

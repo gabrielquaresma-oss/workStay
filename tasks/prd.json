@@ -111,8 +111,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": "Use the prompt template from PRD section 10.3."
+      "passes": true,
+      "notes": "Uses claude-haiku-4-5-20251001 model. Handles empty reviews with neutral scores. Extracts JSON from Claude response."
     },
     {
       "id": "US-008",
