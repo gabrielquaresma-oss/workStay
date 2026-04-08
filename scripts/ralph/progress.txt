@@ -149,6 +149,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - PriceEntry dates use midnight UTC (`setHours(0,0,0,0)`) to avoid timezone issues with `@db.Date`
 ---
 
+## 2026-04-08 - US-012
+- What was implemented: Login page UI with email/password form and demo role selector
+- Files changed:
+  - src/app/(auth)/login/page.tsx (new — login page with gradient bg, card, demo selector)
+- **Learnings for future iterations:**
+  - Login page calls POST /api/auth/login with either `{email, password}` or `{role}` for demo mode
+  - On success, redirects to /search
+  - Uses (auth) route group — URL is /login, not /auth/login
+  - Manual browser verification needed (no browser tools available)
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

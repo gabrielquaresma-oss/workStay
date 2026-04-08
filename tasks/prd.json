@@ -197,8 +197,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": "Follow wireframe from PRD section 9.1."
+      "passes": true,
+      "notes": "Login page with email/password form + demo role selector. Purple gradient background. Hackathon footer."
     },
     {
       "id": "US-013",
