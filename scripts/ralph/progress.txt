@@ -9,6 +9,12 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
 - cn() utility at src/lib/utils.ts uses clsx + tailwind-merge
 - Font is Inter loaded via next/font/google with variable `--font-inter`
 - HTML lang is `pt-BR` — all user-facing text should be in Portuguese
+- Prisma 7.7.0 with PostgreSQL provider. `prisma generate` requires network (binaries.prisma.sh blocked). Schema at prisma/schema.prisma has 10 models + 6 enums.
+- Typecheck with `npx tsc --noEmit` — works without prisma generate having run
+- PrismaClient import uses `require("@prisma/client")` because generated types don't exist (prisma generate blocked). Singleton in src/lib/prisma.ts.
+- TypeScript interfaces for API shapes live in src/types/ (hotel.ts, survey.ts, google-places.ts, dashboard.ts)
+- shadcn/ui components are in src/components/ui/ — created manually (not via CLI). They use Radix UI primitives + class-variance-authority (CVA) + cn() utility.
+- Radix UI packages installed: @radix-ui/react-slot, react-dialog, react-dropdown-menu, react-separator, react-slider, react-progress
 
 ## 2026-04-08 - US-001
 - What was implemented: Full Next.js project scaffold with App Router, TypeScript, Tailwind CSS v4
@@ -27,4 +33,51 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - This env uses Next.js 16 + Tailwind v4, which uses CSS-based config (`@theme inline`) instead of tailwind.config.js. shadcn/ui components may need adaptation for v4 syntax.
   - shadcn CLI `npx shadcn@latest init` requires network access to ui.shadcn.com which is blocked. Components need to be created manually or installed individually.
   - The `@custom-variant dark (&:is(.dark *));` directive is needed for Tailwind v4 dark mode.
+---
+
+## 2026-04-08 - US-002
+- What was implemented: Complete Prisma schema with all 10 models and 6 enums matching PRD section 8.2
+- Files changed:
+  - prisma/schema.prisma (new file — full schema with User, Company, Hotel, StayScore, HotelReview, Survey, Booking, NearbyWorkspace, PriceEntry, SearchLog models)
+- **Learnings for future iterations:**
+  - `prisma generate` cannot run in this environment because binaries.prisma.sh is unreachable (network blocked). The schema-engine binary is required even though Prisma 7.x has Wasm alternatives embedded.
+  - Prisma 7.x (v7.7.0) is installed. It has Wasm-based schema parsing (`prisma_schema_build_bg.wasm`) in the build dir but the CLI still tries to download the native schema-engine binary.
+  - Schema validation can be done by checking model/enum counts and running typecheck (`npx tsc --noEmit`).
+  - The schema uses PostgreSQL provider with `@db.Date` for date-only fields (PriceEntry.date).
+  - All relations, indexes, and unique constraints match PRD section 8.2 exactly.
+---
+
+## 2026-04-08 - US-003
+- What was implemented: Prisma singleton client, TypeScript interfaces for Hotel, Survey, Google Places, and Dashboard types
+- Files changed:
+  - src/lib/prisma.ts (new — PrismaClient singleton with dev hot-reload guard)
+  - src/types/hotel.ts (new — Hotel, StayScoreResult, ScoreBreakdown, HotelSearchResult)
+  - src/types/survey.ts (new — SurveyInput, SurveyResponse)
+  - src/types/google-places.ts (new — GooglePlaceResult, GoogleReview, GoogleNearbyResult)
+  - src/types/dashboard.ts (new — TopHotel, CityHeatmapData, PriceTrend, Insight)
+- **Learnings for future iterations:**
+  - Cannot use `import { PrismaClient } from "@prisma/client"` because prisma generate hasn't run. Use `require("@prisma/client")` instead for the singleton.
+  - src/lib/utils.ts with cn() already existed from US-001, no need to recreate it.
+  - Google Places API (New) response shapes differ from legacy API — use `displayName.text` not `name`, `formattedAddress` not `formatted_address`, etc.
+---
+
+## 2026-04-08 - US-004
+- What was implemented: 10 shadcn/ui base components created manually (button, card, input, badge, slider, skeleton, dialog, dropdown-menu, separator, progress)
+- Files changed:
+  - src/components/ui/button.tsx (new — Button with CVA variants: default, destructive, outline, secondary, ghost, link + sizes)
+  - src/components/ui/card.tsx (new — Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
+  - src/components/ui/input.tsx (new — Input with standard shadcn styling)
+  - src/components/ui/badge.tsx (new — Badge with CVA variants: default, secondary, destructive, outline)
+  - src/components/ui/slider.tsx (new — Slider using @radix-ui/react-slider)
+  - src/components/ui/skeleton.tsx (new — Skeleton with animate-pulse)
+  - src/components/ui/dialog.tsx (new — Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription)
+  - src/components/ui/dropdown-menu.tsx (new — DropdownMenu with full sub-menu, checkbox, radio support)
+  - src/components/ui/separator.tsx (new — Separator using @radix-ui/react-separator)
+  - src/components/ui/progress.tsx (new — Progress using @radix-ui/react-progress)
+  - package.json / package-lock.json (added class-variance-authority, @radix-ui/react-* packages)
+- **Learnings for future iterations:**
+  - shadcn CLI (`npx shadcn@latest add`) is blocked by network (ui.shadcn.com unreachable). Components must be created manually using standard shadcn source code patterns.
+  - shadcn/ui components follow a consistent pattern: Radix UI primitive + React.forwardRef + cn() utility for class merging + CVA for variants.
+  - All interactive components (dialog, dropdown-menu, slider, separator, progress) need "use client" directive.
+  - React 19 is installed — forwardRef still works but may show deprecation hints in future.
 ---

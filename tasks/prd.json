@@ -33,8 +33,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": "Use the full schema from PRD section 8.2. Use PostgreSQL provider."
+      "passes": true,
+      "notes": "Use the full schema from PRD section 8.2. Use PostgreSQL provider. Note: prisma generate cannot run in this env (binaries.prisma.sh unreachable) but schema matches PRD exactly and typecheck passes."
     },
     {
       "id": "US-003",
@@ -50,8 +50,8 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "PrismaClient uses require() since prisma generate can't run in this env (no generated types). cn() helper already existed from US-001."
     },
     {
       "id": "US-004",
@@ -63,8 +63,8 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": "Use npx shadcn@latest add to install each component."
+      "passes": true,
+      "notes": "shadcn CLI blocked by network. Components created manually using standard shadcn/ui source with Radix UI primitives + CVA. Installed: @radix-ui/react-slot, react-dialog, react-dropdown-menu, react-separator, react-slider, react-progress, class-variance-authority."
     },
     {
       "id": "US-005",
