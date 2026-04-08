@@ -94,8 +94,8 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": "Use the Google Places API (New) endpoints, not the legacy Places API."
+      "passes": true,
+      "notes": "Uses Google Places API (New) endpoints. Functions: searchHotels, getPlaceDetails, searchNearby, getPhotoUrl."
     },
     {
       "id": "US-007",

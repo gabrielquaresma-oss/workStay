@@ -89,3 +89,14 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - US-001 was comprehensive and already covered layout.tsx, globals.css, Inter font, pt-BR lang, and metadata. Later stories that overlap with scaffolding may already be done.
   - Always check existing files before implementing — avoids duplicate work.
 ---
+
+## 2026-04-08 - US-006
+- What was implemented: Google Places API (New) client library with 4 functions
+- Files changed:
+  - src/lib/google-places.ts (new — searchHotels, getPlaceDetails, searchNearby, getPhotoUrl)
+- **Learnings for future iterations:**
+  - Google Places API (New) uses POST for searchText and searchNearby, GET for place details
+  - Field masks are specified via X-Goog-FieldMask header, not query params
+  - Photo URLs follow pattern: `{BASE_URL}/{photoName}/media?maxWidthPx=N&key=KEY`
+  - searchNearby uses `includedTypes` (array) while searchText uses `includedType` (string)
+---
