@@ -311,8 +311,8 @@
         "Typecheck passes"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": "For MVP, batch Google API calls in parallel (Promise.all with batches of 5) to keep response time reasonable."
+      "passes": true,
+      "notes": "Searches Google Places, analyzes reviews with Claude, calculates StayScore, generates simulated prices. Batches of 5."
     },
     {
       "id": "US-020",

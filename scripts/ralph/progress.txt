@@ -223,6 +223,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Card links to /hotel/{hotel.id}
 ---
 
+## 2026-04-08 - US-019
+- What was implemented: Hotel search API route with Google Places + Claude + StayScore pipeline
+- Files changed:
+  - src/app/api/hotels/search/route.ts (new)
+- **Learnings for future iterations:**
+  - Search pipeline: Google Places searchText → getPlaceDetails → analyzeReviews → calculateStayScore → generatePrices
+  - Batch processing in groups of 5 with Promise.all for parallel execution
+  - Sort options: stayscore (default), price, value (score/price ratio)
+  - For MVP, doesn't persist to DB — calculates on the fly each time
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
