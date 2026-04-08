@@ -81,3 +81,11 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - All interactive components (dialog, dropdown-menu, slider, separator, progress) need "use client" directive.
   - React 19 is installed — forwardRef still works but may show deprecation hints in future.
 ---
+
+## 2026-04-08 - US-005
+- What was implemented: Verified root layout, fonts, and global styles — all acceptance criteria already satisfied by US-001
+- Files changed: None (only prd.json updated)
+- **Learnings for future iterations:**
+  - US-001 was comprehensive and already covered layout.tsx, globals.css, Inter font, pt-BR lang, and metadata. Later stories that overlap with scaffolding may already be done.
+  - Always check existing files before implementing — avoids duplicate work.
+---
