@@ -500,8 +500,8 @@
         "Typecheck passes"
       ],
       "priority": 30,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "GET /api/surveys?status=pending returns demo data for TRAVELER. POST validates all fields, returns success."
     },
     {
       "id": "US-031",

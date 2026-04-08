@@ -327,6 +327,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Hotel detail page fetches hotel + nearby workspaces in separate useEffects (nearby depends on hotel)
 ---
 
+## 2026-04-08 - US-030
+- What was implemented: Survey API routes for listing pending and submitting responses
+- Files changed:
+  - src/app/api/surveys/route.ts (new — GET + POST handlers)
+- **Learnings for future iterations:**
+  - GET and POST can coexist in the same route.ts file
+  - MVP uses hardcoded demo pending surveys (no DB query)
+  - All validation done server-side with proper 400 responses
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
