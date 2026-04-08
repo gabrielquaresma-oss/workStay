@@ -59,3 +59,21 @@ export interface FeaturedSection {
   iconColor: string;
   hotels: FeaturedHotelCard[];
 }
+
+export interface StayScoreWeights {
+  wifi: number;
+  workspace_room: number;
+  workspace_hotel: number;
+  coworking_proximity: number;
+  price_productivity: number;
+  traveler_rating: number;
+}
+
+export interface PromptInterpretation {
+  destination: string;
+  weights: StayScoreWeights;
+  priorities_summary: string;
+  search_query: string;
+  original_prompt: string;
+  confidence: number;
+}

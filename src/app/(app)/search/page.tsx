@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, MapPin, Building2 } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotelCard } from "@/components/hotel/hotel-card";
@@ -88,6 +88,9 @@ function SearchResultsView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
+  const weightsParam = searchParams.get("weights");
+  const summaryParam = searchParams.get("summary");
+  const promptParam = searchParams.get("prompt");
 
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<HotelSearchResult[]>([]);
@@ -102,7 +105,7 @@ function SearchResultsView() {
   const [showFilters, setShowFilters] = useState(false);
 
   const doSearch = useCallback(
-    async (q: string) => {
+    async (q: string, weights?: string | null) => {
       if (!q.trim()) return;
       setLoading(true);
       setSearched(true);
@@ -112,8 +115,7 @@ function SearchResultsView() {
       if (minScore > 0) params.set("min_score", String(minScore));
       if (maxPrice > 0) params.set("max_price", String(maxPrice));
       if (sort !== "stayscore") params.set("sort", sort);
-
-      router.replace(`/search?${params.toString()}`);
+      if (weights) params.set("weights", weights);
 
       try {
         const res = await fetch(`/api/hotels/search?${params.toString()}`);
@@ -127,12 +129,12 @@ function SearchResultsView() {
         setLoading(false);
       }
     },
-    [minScore, maxPrice, sort, router]
+    [minScore, maxPrice, sort]
   );
 
   useEffect(() => {
     if (initialQuery) {
-      doSearch(initialQuery);
+      doSearch(initialQuery, weightsParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -203,6 +205,23 @@ function SearchResultsView() {
 
       {searched && (
         <div className="max-w-5xl mx-auto px-4 pt-6">
+          {/* AI Interpretation Banner */}
+          {summaryParam && (
+            <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4 mb-4 flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-[#009EFB] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-[#1E3A5F]">
+                  {summaryParam}
+                </p>
+                {promptParam && (
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    Baseado em: &ldquo;{promptParam}&rdquo;
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2 mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

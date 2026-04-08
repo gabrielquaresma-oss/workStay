@@ -219,16 +219,42 @@ export default function HotelDetailPage({
         </div>
       </div>
 
-      {/* Section 2 - Photo gallery placeholder */}
+      {/* Section 2 - Photo gallery */}
       <div className="grid grid-cols-3 gap-2 h-[350px]">
-        <div className="col-span-2 bg-gradient-to-br from-[#2872FA]/10 to-[#009EFB]/5 rounded-xl flex items-center justify-center">
-          <span className="text-7xl text-primary/15 font-bold">
-            {hotel.name.charAt(0)}
-          </span>
+        <div className="col-span-2 rounded-xl overflow-hidden bg-gradient-to-br from-[#2872FA]/10 to-[#009EFB]/5">
+          {hotel.photo_urls.length > 0 ? (
+            <img
+              src={hotel.photo_urls[0]}
+              alt={hotel.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-7xl text-primary/15 font-bold">
+                {hotel.name.charAt(0)}
+              </span>
+            </div>
+          )}
         </div>
         <div className="space-y-2">
-          <div className="h-[calc(50%-4px)] bg-gradient-to-br from-[#009EFB]/8 to-muted rounded-xl" />
-          <div className="h-[calc(50%-4px)] bg-gradient-to-br from-muted to-[#2872FA]/8 rounded-xl" />
+          <div className="h-[calc(50%-4px)] rounded-xl overflow-hidden bg-gradient-to-br from-[#009EFB]/8 to-muted">
+            {hotel.photo_urls[1] ? (
+              <img
+                src={hotel.photo_urls[1]}
+                alt={hotel.name}
+                className="w-full h-full object-cover"
+              />
+            ) : null}
+          </div>
+          <div className="h-[calc(50%-4px)] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-[#2872FA]/8">
+            {hotel.photo_urls[2] ? (
+              <img
+                src={hotel.photo_urls[2]}
+                alt={hotel.name}
+                className="w-full h-full object-cover"
+              />
+            ) : null}
+          </div>
         </div>
       </div>
 

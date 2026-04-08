@@ -12,9 +12,17 @@ const CITIES = [
 interface CityChipsProps {
   selectedCity: string | null;
   onCitySelect: (city: string | null) => void;
+  onPromptPopulate?: (text: string) => void;
 }
 
-export function CityChips({ selectedCity, onCitySelect }: CityChipsProps) {
+export function CityChips({ selectedCity, onCitySelect, onPromptPopulate }: CityChipsProps) {
+  function handleClick(city: { label: string; value: string | null }) {
+    onCitySelect(city.value);
+    if (onPromptPopulate && city.value) {
+      onPromptPopulate(`Hotel em ${city.value} para viagem a trabalho`);
+    }
+  }
+
   return (
     <div className="mt-3 flex items-center justify-center gap-1.5 flex-wrap">
       <span className="text-[11px] text-[#9CA3AF]">Destinos populares:</span>
@@ -25,7 +33,7 @@ export function CityChips({ selectedCity, onCitySelect }: CityChipsProps) {
         return (
           <button
             key={city.label}
-            onClick={() => onCitySelect(city.value)}
+            onClick={() => handleClick(city)}
             className={`border rounded-[20px] px-[11px] py-[3px] text-[11px] font-medium transition-colors cursor-pointer ${
               isActive
                 ? "bg-[#009EFB] border-[#009EFB] text-white"

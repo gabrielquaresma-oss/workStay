@@ -1,15 +1,15 @@
-import type { ScoreBreakdown, StayScoreResult } from "@/types/hotel";
+import type { ScoreBreakdown, StayScoreResult, StayScoreWeights } from "@/types/hotel";
 import type { SentimentResult } from "./sentiment-analyzer";
 
-// Weights for each sub-score
-const WEIGHTS = {
+// Default weights for each sub-score
+export const DEFAULT_WEIGHTS: StayScoreWeights = {
   wifi: 0.25,
   workspace_room: 0.20,
   workspace_hotel: 0.15,
   coworking_proximity: 0.15,
   price_productivity: 0.15,
   traveler_rating: 0.10,
-} as const;
+};
 
 interface SurveyData {
   wifi_rating: number; // 1-5
@@ -32,6 +32,7 @@ interface CalculatorInput {
   nearbyWorkspaces: NearbyWorkspaceData[];
   avgPricePerNight: number | null;
   cityAvgPrice: number | null;
+  customWeights?: StayScoreWeights;
 }
 
 function clamp(value: number, min = 0, max = 100): number {
@@ -269,13 +270,15 @@ export function calculateStayScore(input: CalculatorInput): StayScoreResult {
     traveler_rating_score: Math.round(travelerRatingScore),
   };
 
+  const weights = input.customWeights ?? DEFAULT_WEIGHTS;
+
   const totalScore = Math.round(
-    wifiScore * WEIGHTS.wifi +
-      roomWorkspaceScore * WEIGHTS.workspace_room +
-      hotelWorkspaceScore * WEIGHTS.workspace_hotel +
-      coworkingProximityScore * WEIGHTS.coworking_proximity +
-      priceProductivityScore * WEIGHTS.price_productivity +
-      travelerRatingScore * WEIGHTS.traveler_rating
+    wifiScore * weights.wifi +
+      roomWorkspaceScore * weights.workspace_room +
+      hotelWorkspaceScore * weights.workspace_hotel +
+      coworkingProximityScore * weights.coworking_proximity +
+      priceProductivityScore * weights.price_productivity +
+      travelerRatingScore * weights.traveler_rating
   );
 
   const now = new Date();

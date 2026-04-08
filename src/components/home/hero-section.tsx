@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Star } from "lucide-react";
-import { SearchBar } from "./search-bar";
+import { AIPromptInput } from "./ai-prompt-input";
 import { CityChips } from "./city-chips";
 
 interface HeroSectionProps {
@@ -10,6 +11,12 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ selectedCity, onCitySelect }: HeroSectionProps) {
+  const [promptText, setPromptText] = useState<string | undefined>(undefined);
+
+  function handleCityPrompt(text: string) {
+    setPromptText(text);
+  }
+
   return (
     <div className="bg-[#E8F4FF] px-6 pt-9 pb-8 text-center border-b border-[#C5E2FF]">
       {/* Eyebrow */}
@@ -27,15 +34,19 @@ export function HeroSection({ selectedCity, onCitySelect }: HeroSectionProps) {
 
       {/* Subtitle */}
       <p className="text-[13px] text-[#6B7280] mb-6">
-        Hotéis avaliados por conectividade, estrutura de trabalho e coworkings
-        próximos
+        Descreva sua viagem e nossa IA encontra os hotéis ideais para seu perfil
+        de trabalho
       </p>
 
-      {/* Search bar */}
-      <SearchBar />
+      {/* AI Prompt Input */}
+      <AIPromptInput initialPrompt={promptText} />
 
       {/* City chips */}
-      <CityChips selectedCity={selectedCity} onCitySelect={onCitySelect} />
+      <CityChips
+        selectedCity={selectedCity}
+        onCitySelect={onCitySelect}
+        onPromptPopulate={handleCityPrompt}
+      />
     </div>
   );
 }

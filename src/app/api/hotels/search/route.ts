@@ -3,7 +3,7 @@ import { searchHotels, getPlaceDetails } from "@/lib/google-places";
 import { analyzeReviews } from "@/lib/sentiment-analyzer";
 import { calculateStayScore } from "@/lib/stayscore-calculator";
 import { generatePrices } from "@/lib/price-simulator";
-import type { HotelSearchResult } from "@/types/hotel";
+import type { HotelSearchResult, StayScoreWeights } from "@/types/hotel";
 
 export async function GET(request: Request) {
   await getOrCreateUser();
@@ -13,6 +13,31 @@ export async function GET(request: Request) {
   const minScore = Number(searchParams.get("min_score") || "0");
   const maxPrice = Number(searchParams.get("max_price") || "0");
   const sort = searchParams.get("sort") || "stayscore";
+
+  // Parse optional custom weights
+  let customWeights: StayScoreWeights | undefined;
+  const weightsParam = searchParams.get("weights");
+  if (weightsParam) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(weightsParam));
+      const keys: (keyof StayScoreWeights)[] = [
+        "wifi", "workspace_room", "workspace_hotel",
+        "coworking_proximity", "price_productivity", "traveler_rating",
+      ];
+      if (keys.every((k) => typeof parsed[k] === "number")) {
+        const sum = keys.reduce((s, k) => s + parsed[k], 0);
+        // Normalize if not summing to 1.0
+        if (sum > 0) {
+          customWeights = {} as StayScoreWeights;
+          for (const k of keys) {
+            customWeights[k] = parsed[k] / sum;
+          }
+        }
+      }
+    } catch {
+      // Ignore malformed weights, use defaults
+    }
+  }
 
   if (!query) {
     return Response.json({ error: "Parâmetro 'q' é obrigatório" }, { status: 400 });
@@ -51,6 +76,7 @@ export async function GET(request: Request) {
               nearbyWorkspaces: [],
               avgPricePerNight: null,
               cityAvgPrice: null,
+              customWeights,
             });
 
             // Generate simulated price
