@@ -1,0 +1,30 @@
+# Ralph Progress Log
+Started: Wed Apr  8 07:44:04 AM PDT 2026
+---
+
+## Codebase Patterns
+- Project uses Next.js 16 with Tailwind CSS v4 (CSS-based config via `@theme inline` in globals.css, not tailwind.config.js)
+- shadcn/ui was initialized manually (components.json + CSS variables) since ui.shadcn.com is unreachable from this environment
+- Purple primary color (#7C3AED) is set as HSL `263 70% 52%` in CSS variables AND in tailwind.config.ts
+- cn() utility at src/lib/utils.ts uses clsx + tailwind-merge
+- Font is Inter loaded via next/font/google with variable `--font-inter`
+- HTML lang is `pt-BR` — all user-facing text should be in Portuguese
+
+## 2026-04-08 - US-001
+- What was implemented: Full Next.js project scaffold with App Router, TypeScript, Tailwind CSS v4
+- Files changed:
+  - package.json (name: stayscore, all deps installed)
+  - next.config.ts (images.remotePatterns for places.googleapis.com)
+  - tailwind.config.ts (purple #7C3AED as primary)
+  - src/app/globals.css (shadcn CSS variables with purple theme)
+  - src/app/layout.tsx (Inter font, pt-BR lang, metadata)
+  - src/app/page.tsx (simple placeholder)
+  - src/lib/utils.ts (cn helper)
+  - components.json (shadcn config)
+  - .env.example (all required env vars)
+  - .gitignore (updated to not exclude .env.example)
+- **Learnings for future iterations:**
+  - This env uses Next.js 16 + Tailwind v4, which uses CSS-based config (`@theme inline`) instead of tailwind.config.js. shadcn/ui components may need adaptation for v4 syntax.
+  - shadcn CLI `npx shadcn@latest init` requires network access to ui.shadcn.com which is blocked. Components need to be created manually or installed individually.
+  - The `@custom-variant dark (&:is(.dark *));` directive is needed for Tailwind v4 dark mode.
+---

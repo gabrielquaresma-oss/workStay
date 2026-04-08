@@ -1,0 +1,707 @@
+{
+  "project": "StayScore",
+  "branchName": "ralph/stayscore-mvp",
+  "description": "Corporate hotel intelligence platform for Onfly hackathon — StayScore productivity rating, date comparator, WorkNearby coworkings, and travel manager dashboard",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Initialize Next.js project with Tailwind and dependencies",
+      "description": "As a developer, I need the base Next.js project scaffolded with all required dependencies so that subsequent stories can build on it.",
+      "acceptanceCriteria": [
+        "Next.js 14+ project created with App Router, TypeScript, Tailwind CSS",
+        "Install dependencies: prisma, @prisma/client, @anthropic-ai/sdk, @googlemaps/js-api-loader, recharts, lucide-react, date-fns",
+        "Install shadcn/ui CLI and init with default config",
+        "Create .env.example with: DATABASE_URL, ONFLY_API_URL, ONFLY_API_TOKEN, GOOGLE_PLACES_API_KEY, GOOGLE_MAPS_API_KEY, ANTHROPIC_API_KEY, NEXT_PUBLIC_GOOGLE_MAPS_API_KEY",
+        "tailwind.config.ts has purple (#7C3AED) as primary color in theme extend",
+        "next.config.js configured with images.remotePatterns for places.googleapis.com",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Create Prisma schema with all database models",
+      "description": "As a developer, I need the complete database schema so that all features have the data layer ready.",
+      "acceptanceCriteria": [
+        "prisma/schema.prisma contains models: User, Company, Hotel, StayScore, HotelReview, Survey, Booking, NearbyWorkspace, PriceEntry, SearchLog",
+        "Enums defined: UserRole (TRAVELER, TRAVEL_MANAGER, FINANCE_MANAGER, ADMIN), WorkspaceAdequacy (SIM, PARCIAL, NAO), Recommendation (SIM, TALVEZ, NAO), BookingStatus (CONFIRMED, COMPLETED, CANCELLED), WorkspaceType (COWORKING, CAFE), PriceSource (SIMULATED, ONFLY_HISTORICAL, EXTERNAL)",
+        "All relations and indexes match the PRD schema definition (section 8.2)",
+        "StayScore model has sub-score fields: wifi_score, workspace_room_score, workspace_hotel_score, coworking_proximity_score, price_productivity_score, traveler_rating_score",
+        "prisma generate runs without errors",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Use the full schema from PRD section 8.2. Use PostgreSQL provider."
+    },
+    {
+      "id": "US-003",
+      "title": "Create Prisma singleton client and utility helpers",
+      "description": "As a developer, I need shared lib files so that API routes and components can reuse common logic.",
+      "acceptanceCriteria": [
+        "src/lib/prisma.ts exports a singleton PrismaClient (handles hot reload in dev)",
+        "src/lib/utils.ts exports cn() helper using clsx + tailwind-merge",
+        "src/types/hotel.ts exports TypeScript interfaces for Hotel, StayScoreResult, ScoreBreakdown, HotelSearchResult",
+        "src/types/survey.ts exports interfaces for SurveyInput, SurveyResponse",
+        "src/types/google-places.ts exports interfaces for GooglePlaceResult, GoogleReview, GoogleNearbyResult",
+        "src/types/dashboard.ts exports interfaces for TopHotel, CityHeatmapData, PriceTrend, Insight",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Add shadcn/ui base components",
+      "description": "As a developer, I need reusable UI primitives so that feature components can use them.",
+      "acceptanceCriteria": [
+        "shadcn/ui components added: button, card, input, badge, slider, skeleton, dialog, dropdown-menu, separator, progress",
+        "Components are in src/components/ui/",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Use npx shadcn@latest add to install each component."
+    },
+    {
+      "id": "US-005",
+      "title": "Create root layout with fonts and global styles",
+      "description": "As a developer, I need the app shell with layout, fonts, and global CSS configured.",
+      "acceptanceCriteria": [
+        "src/app/layout.tsx has Inter font loaded from next/font/google",
+        "src/app/globals.css has Tailwind directives and custom CSS variables for purple primary (#7C3AED)",
+        "HTML lang set to 'pt-BR'",
+        "Metadata title is 'StayScore - Inteligência Hoteleira Corporativa'",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Create Google Places API client library",
+      "description": "As a developer, I need a server-side wrapper for Google Places API (New) so that API routes can search hotels and get details.",
+      "acceptanceCriteria": [
+        "src/lib/google-places.ts exports functions: searchHotels(query: string, maxResults?: number), getPlaceDetails(placeId: string), searchNearby(lat: number, lng: number, type: string, radius?: number), getPhotoUrl(photoName: string)",
+        "searchHotels calls POST places.googleapis.com/v1/places:searchText with includedType 'hotel' and languageCode 'pt-BR'",
+        "getPlaceDetails calls GET places.googleapis.com/v1/places/{placeId} with field mask for displayName, formattedAddress, location, rating, userRatingCount, reviews, photos, types",
+        "searchNearby calls POST places.googleapis.com/v1/places:searchNearby with locationRestriction circle",
+        "API key read from process.env.GOOGLE_PLACES_API_KEY, passed as X-Goog-Api-Key header",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Use the Google Places API (New) endpoints, not the legacy Places API."
+    },
+    {
+      "id": "US-007",
+      "title": "Create Claude API sentiment analyzer",
+      "description": "As a developer, I need a service that analyzes hotel reviews for work-relevant sentiment using Claude API.",
+      "acceptanceCriteria": [
+        "src/lib/claude-client.ts exports an Anthropic client instance using @anthropic-ai/sdk",
+        "src/lib/sentiment-analyzer.ts exports function analyzeReviews(hotelName: string, reviews: {text: string, rating: number}[]) that returns structured sentiment JSON",
+        "System prompt instructs Claude to extract sentiment scores (0-1) for: wifi, workspace_room, workspace_hotel, noise, location_business",
+        "Uses claude-haiku-4-5-20251001 model for cost efficiency",
+        "Returns parsed JSON with per-review criteria scores and overall_work_relevance",
+        "Handles empty reviews array gracefully (returns neutral scores)",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Use the prompt template from PRD section 10.3."
+    },
+    {
+      "id": "US-008",
+      "title": "Implement StayScore calculator algorithm",
+      "description": "As a developer, I need the core algorithm that computes StayScore (0-100) from multiple data sources.",
+      "acceptanceCriteria": [
+        "src/lib/stayscore-calculator.ts exports function calculateStayScore() that returns total score and 6 sub-scores",
+        "Weights: wifi=0.25, workspace_room=0.20, workspace_hotel=0.15, coworking_proximity=0.15, price_productivity=0.15, traveler_rating=0.10",
+        "calculateWifiScore uses review sentiment (60%) + survey wifi_rating (weight grows with volume, 20%-70%) + amenity bonus (+5 for wifi listed)",
+        "calculateRoomWorkspaceScore uses review sentiment + survey workspace_adequate (SIM=100, PARCIAL=50, NAO=10) + category bonus (+10 for 4-5 star)",
+        "calculateCoworkingProximityScore uses count (max 40pts) + closest distance (max 30pts) + avg rating (max 30pts)",
+        "calculatePriceProductivityScore uses efficiency index: avgProductivity / normalizedPrice",
+        "calculateTravelerRatingScore uses Google rating (1-5 → 0-100) blended with survey would_recommend",
+        "All functions handle edge cases: no reviews, no surveys, no nearby workspaces",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Follow the algorithm in PRD section 10.2 exactly."
+    },
+    {
+      "id": "US-009",
+      "title": "Create price simulator for MVP",
+      "description": "As a developer, I need a price simulation service since Onfly API doesn't expose real-time rates in MVP.",
+      "acceptanceCriteria": [
+        "src/lib/price-simulator.ts exports function generatePrices(hotelName: string, city: string, baseDate: Date, days: number) returning array of {date, price}",
+        "Prices are realistic for Brazilian market: Budget <R$200, Midscale R$200-400, Upscale R$400-700",
+        "Weekday prices are higher than weekend (15-30% variation)",
+        "Prices vary ±10-25% around base price for ±3 day range",
+        "Function is deterministic for same inputs (seeded by hotel name hash) so prices are consistent",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "This is temporary for hackathon demo. Prices should look realistic."
+    },
+    {
+      "id": "US-010",
+      "title": "Create auth helpers and mock auth for MVP",
+      "description": "As a developer, I need authentication utilities so that routes can identify the current user.",
+      "acceptanceCriteria": [
+        "src/lib/auth.ts exports functions: getCurrentUser() that reads session cookie, setSession(token, user), clearSession()",
+        "For MVP: implements a simplified auth with hardcoded demo users (traveler, travel_manager, finance_manager) that can be selected at login",
+        "Session stored in httpOnly cookie named 'stayscore-session' with JSON payload {userId, role, companyId}",
+        "getCurrentUser returns null if no session, otherwise returns {id, name, email, role, companyId}",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "For hackathon MVP, use simplified token-based auth rather than full Onfly OAuth."
+    },
+    {
+      "id": "US-011",
+      "title": "Create database seed with demo data",
+      "description": "As a developer, I need seed data so the app has realistic demo content for the hackathon presentation.",
+      "acceptanceCriteria": [
+        "prisma/seed.ts creates: 1 Company ('Demo Corp'), 3 Users (one per role: TRAVELER, TRAVEL_MANAGER, FINANCE_MANAGER)",
+        "Creates 10+ Hotels in BH and SP with realistic names (Mercure BH Lourdes, Novotel Jaraguá SP, Ibis Paulista, etc.), addresses, coordinates, ratings",
+        "Creates StayScore entries for each hotel with varied sub-scores (some high wifi + low room, etc.)",
+        "Creates 5+ Bookings with COMPLETED status for dashboard demo",
+        "Creates 3+ Surveys with varied responses",
+        "Creates PriceEntry records for each hotel covering ±7 days from current date",
+        "Creates NearbyWorkspace entries for at least 3 hotels (mix of COWORKING and CAFE)",
+        "package.json has prisma.seed configured to run seed.ts via ts-node or tsx",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Use real hotel names and realistic coordinates for BH and SP."
+    },
+    {
+      "id": "US-012",
+      "title": "Create login page UI",
+      "description": "As a user, I want to see a login page where I can authenticate to access StayScore.",
+      "acceptanceCriteria": [
+        "src/app/(auth)/login/page.tsx renders a centered card on purple-to-white gradient background",
+        "Card has: StayScore logo text, subtitle 'Inteligência hoteleira para viajantes corporativos', email input, password input, 'Entrar com Onfly' button",
+        "Button is purple (#7C3AED) full-width, 44px height, 8px border-radius",
+        "For MVP: also has a role selector dropdown (Viajante, Travel Manager, Gestor Financeiro) for quick demo login",
+        "Footer text: 'Produto criado para o Hackathon Onfly 2026'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Follow wireframe from PRD section 9.1."
+    },
+    {
+      "id": "US-013",
+      "title": "Create auth API routes (login, me, logout)",
+      "description": "As a developer, I need auth API endpoints so the login page can authenticate users.",
+      "acceptanceCriteria": [
+        "POST /api/auth/login accepts {email, password} or {role} for demo mode, sets session cookie, returns user data",
+        "GET /api/auth/me returns current user from session cookie or 401",
+        "POST /api/auth/logout clears session cookie, returns {success: true}",
+        "Demo mode: if role is provided without email/password, logs in as the corresponding seed user",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Create navbar component with auth state",
+      "description": "As a user, I want a navigation bar that shows the logo, search input, and my profile.",
+      "acceptanceCriteria": [
+        "src/components/layout/navbar.tsx renders 64px height white navbar with shadow-sm",
+        "Left: StayScore logo text in purple bold",
+        "Center: search input (max-width 480px) with search icon, placeholder 'Busque por cidade, região ou hotel...'",
+        "Right: user avatar circle (36px, initials) with dropdown menu (Perfil, Dashboard if manager, Sair)",
+        "If user role is TRAVEL_MANAGER or FINANCE_MANAGER, shows 'Dashboard' link",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Create authenticated app layout",
+      "description": "As a developer, I need a layout wrapper for authenticated routes that includes the navbar and redirects unauthenticated users.",
+      "acceptanceCriteria": [
+        "src/app/(app)/layout.tsx wraps children with navbar on top",
+        "Checks for session cookie; if missing, redirects to /login",
+        "Root page (src/app/page.tsx) redirects to /search",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Create StayScore badge component",
+      "description": "As a user, I want to see a circular badge showing the hotel's productivity score with color coding.",
+      "acceptanceCriteria": [
+        "src/components/hotel/stayscore-badge.tsx accepts props: score (number 0-100), size ('sm' | 'md' | 'lg')",
+        "Renders circular badge with colored border: green (#22C55E) if score >= 80, yellow (#EAB308) if 60-79, red (#EF4444) if < 60",
+        "Size sm: 40px circle, 16px font. Size md: 52px, 20px font. Size lg: 80px, 32px font",
+        "Score number displayed bold in center, 'Score' label in 9px below (md/lg only)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Create score breakdown component",
+      "description": "As a user, I want to see the 6 productivity criteria with individual scores and progress bars.",
+      "acceptanceCriteria": [
+        "src/components/hotel/score-breakdown.tsx accepts breakdown prop with 6 sub-scores",
+        "Renders 2x3 grid of criteria, each with: icon, name, horizontal progress bar (8px height), numeric score, weight percentage",
+        "Criteria: Wi-Fi (25%), Espaço no Quarto (20%), Espaço no Hotel (15%), Coworkings Próximos (15%), Custo-Benefício (15%), Avaliação Corp. (10%)",
+        "Progress bar color: green >= 80, yellow 60-79, red < 60",
+        "Criteria with score < 50 highlighted in red",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Create hotel card component for search results",
+      "description": "As a user, I want to see hotel cards in search results showing name, photo, score, price, and key metrics.",
+      "acceptanceCriteria": [
+        "src/components/hotel/hotel-card.tsx renders horizontal card: image left (200x150px), content right",
+        "Content shows: hotel name (bold 18px), address (gray 13px), mini breakdown (Wi-Fi, Mesa, Silêncio as small badges), price (bold 20px purple), Google rating",
+        "StayScore badge (md size) positioned top-right of content area",
+        "Highlight tags at bottom: 'Wi-Fi Excelente' (green), 'Business Center' (blue), 'Perto de coworking' (purple) based on score thresholds",
+        "Card is clickable (Link to /hotel/{id}), hover shows shadow-md",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Create hotel search API route",
+      "description": "As a developer, I need the search endpoint that queries Google Places and returns hotels with StayScores.",
+      "acceptanceCriteria": [
+        "GET /api/hotels/search accepts query params: q (search text), min_score, max_price, sort (stayscore|price|value)",
+        "First checks database cache: hotels in same city with unexpired StayScore (expires_at > now)",
+        "If cache miss: calls Google Places searchText, then for each hotel calls getPlaceDetails, runs sentiment analysis, calculates StayScore",
+        "Stores results in database (Hotel, HotelReview, StayScore records) with 7-day TTL",
+        "Returns array of hotels with stayscore breakdown, sorted per sort param",
+        "Applies min_score and max_price filters server-side",
+        "Response time acceptable for up to 20 hotels",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "For MVP, batch Google API calls in parallel (Promise.all with batches of 5) to keep response time reasonable."
+    },
+    {
+      "id": "US-020",
+      "title": "Create hotel search page with filters",
+      "description": "As a traveler, I want to search hotels by city and see results with StayScores, with filtering and sorting options.",
+      "acceptanceCriteria": [
+        "src/app/(app)/search/page.tsx renders filter bar + hotel list",
+        "Filter bar has: StayScore minimum slider (0-100), price range inputs (R$ min - R$ max), sort dropdown (StayScore, Preço, Custo-benefício)",
+        "Results counter shows 'N hotéis encontrados'",
+        "Renders HotelCard for each result",
+        "Shows skeleton loading state (4 shimmer cards) while fetching",
+        "Shows empty state with illustration when no query entered",
+        "Search triggers on Enter key or search icon click in navbar",
+        "URL updates with search query params for shareability",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Create hotel detail API route",
+      "description": "As a developer, I need an endpoint returning full hotel details including score breakdown and reviews.",
+      "acceptanceCriteria": [
+        "GET /api/hotels/{id} returns hotel with: full details, stayscore breakdown, work-relevant reviews, amenities",
+        "If score is expired or missing, recalculates on the fly",
+        "Reviews are filtered to show work-relevant ones first (is_work_relevant=true), sorted by work_relevance_score desc",
+        "Returns photo URLs resolved via Google Places photo API",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Create review list component with work-relevance highlights",
+      "description": "As a traveler, I want to see reviews filtered by work relevance with highlighted keywords.",
+      "acceptanceCriteria": [
+        "src/components/hotel/review-list.tsx renders section titled 'O que viajantes a trabalho dizem' with review count",
+        "Each review shows: author avatar (initial circle), name, date, Google star rating, relevance percentage badge",
+        "Review text has work-related terms highlighted in yellow (wifi, mesa, trabalho, silêncio, barulho, etc.)",
+        "Sentiment tags below text: 'Wi-Fi: Positivo' (green) or 'Mesa: Negativo' (red) based on sentiment_analysis",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Create nearby workspaces API route",
+      "description": "As a developer, I need an endpoint that returns coworkings and cafes near a hotel.",
+      "acceptanceCriteria": [
+        "GET /api/hotels/{id}/nearby accepts query params: types (coworking,cafe), radius (default 1000)",
+        "Checks NearbyWorkspace cache (expires_at > now) for this hotel",
+        "If cache miss: calls Google Places searchNearby for coworking_space and cafe types",
+        "For cafes: sends reviews to Claude API to determine work-friendliness, only includes if work_friendly_score > 0.5",
+        "Calculates distance_meters using haversine formula from hotel coordinates",
+        "Stores results in NearbyWorkspace table with 14-day TTL",
+        "Returns workspaces sorted by distance, with indicators (has_wifi, has_power_outlets, is_quiet)",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Create WorkNearby map component",
+      "description": "As a traveler, I want to see an interactive map showing the hotel and nearby coworkings/cafes with colored pins.",
+      "acceptanceCriteria": [
+        "src/components/worknearby/nearby-map.tsx renders Google Map centered on hotel coordinates at zoom 15",
+        "Uses @googlemaps/js-api-loader to load Google Maps JS API with NEXT_PUBLIC_GOOGLE_MAPS_API_KEY",
+        "Purple pin for hotel, blue pins for coworkings, green pins for cafes",
+        "Dashed purple circle showing 1km radius",
+        "Clicking a pin shows info tooltip with name, rating, distance",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Use AdvancedMarkerElement for custom pin styling."
+    },
+    {
+      "id": "US-025",
+      "title": "Create workspace card and list components",
+      "description": "As a traveler, I want to see a list of nearby workspaces with details like distance, rating, and amenity indicators.",
+      "acceptanceCriteria": [
+        "src/components/worknearby/workspace-card.tsx shows: icon (blue laptop for coworking, green coffee for cafe), name (bold 14px), distance in meters, Google rating, opening hours, indicator badges (Wi-Fi, Tomadas, Silencioso)",
+        "src/components/worknearby/workspace-list.tsx renders scrollable list of WorkspaceCards",
+        "Hovering a card in the list highlights corresponding pin on the map (via shared state or callback)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-026",
+      "title": "Create date comparison API route",
+      "description": "As a developer, I need an endpoint that compares prices across ±3 business days and suggests alternatives.",
+      "acceptanceCriteria": [
+        "POST /api/hotels/compare accepts {hotel_id, check_in, check_out}",
+        "Generates ±3 business day range (skips weekends) from check_in date",
+        "Fetches PriceEntry for each date from database (simulated prices)",
+        "Identifies cheapest date where hotel StayScore >= original score",
+        "Finds up to 3 alternative hotels in same city with lower price AND StayScore >= original",
+        "Calculates projected annual savings based on price difference × 12 trips",
+        "Returns: original price, heatmap array [{date, price, color}], best_date suggestion, alternative_hotels, projected_annual_savings",
+        "Color coding: green if < 80% of original, yellow if 80-100%, red if > 100%",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-027",
+      "title": "Create date heatmap component",
+      "description": "As a traveler, I want to see a visual heatmap of prices across nearby dates to identify the cheapest option.",
+      "acceptanceCriteria": [
+        "src/components/compare/date-heatmap.tsx renders horizontal grid of 7 day cells",
+        "Each cell shows: day of week (11px), date (12px bold), price (14px bold)",
+        "Cell background: green (#DCFCE7) for cheapest, yellow for mid, red (#FEE2E2) for most expensive",
+        "Selected date cell has purple 2px border",
+        "Best date cell has a star icon in corner",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-028",
+      "title": "Create date suggestion and alternative hotels components",
+      "description": "As a traveler, I want to see savings suggestions and alternative hotel options.",
+      "acceptanceCriteria": [
+        "src/components/compare/date-suggestion.tsx renders green-bordered card with savings amount, alternative date, and StayScore confirmation",
+        "Only displays if savings > R$30",
+        "src/components/compare/alternative-hotels.tsx renders up to 3 mini horizontal cards showing: hotel name, StayScore badge (sm), price, savings tag in green",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-029",
+      "title": "Create hotel detail page assembling all sections",
+      "description": "As a traveler, I want a complete hotel detail page with score breakdown, date comparator, WorkNearby map, and reviews.",
+      "acceptanceCriteria": [
+        "src/app/(app)/hotel/[id]/page.tsx fetches hotel data from /api/hotels/{id}",
+        "Section 1 - Header: breadcrumb, hotel name (H1 28px bold), address, Google rating badge, large StayScore badge (lg)",
+        "Section 2 - Photo gallery: main photo (2/3 width) + 2 smaller stacked photos (1/3 width)",
+        "Section 3 - Score Breakdown: ScoreBreakdown component in white card",
+        "Section 4 - Date Comparator: date pickers + 'Comparar' button + DateHeatmap + DateSuggestion + AlternativeHotels",
+        "Section 5 - WorkNearby: NearbyMap (60% width) + WorkspaceList (40% width) in white card",
+        "Section 6 - Reviews: ReviewList component",
+        "Section 7 - Sticky bottom bar: price display + 'Reservar na Onfly' purple button",
+        "Loading states with skeletons for each section",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": "Follow the wireframe from PRD section 9.3 closely."
+    },
+    {
+      "id": "US-030",
+      "title": "Create survey API routes (list pending, submit)",
+      "description": "As a developer, I need endpoints for listing pending surveys and submitting survey responses.",
+      "acceptanceCriteria": [
+        "GET /api/surveys?status=pending returns surveys pending for current user (bookings with COMPLETED status that have no matching survey)",
+        "POST /api/surveys accepts {hotel_id, booking_id, wifi_rating (1-5), workspace_adequate (SIM|PARCIAL|NAO), silence_rating (1-5), would_recommend (SIM|TALVEZ|NAO), stay_date}",
+        "After saving survey, triggers StayScore recalculation for that hotel incorporating the new survey data",
+        "Returns {survey: {id}, message: 'Obrigado!'}",
+        "Validates all required fields, returns 400 on invalid input",
+        "Typecheck passes"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-031",
+      "title": "Create micro-survey form component and page",
+      "description": "As a traveler, I want to answer a quick 4-question survey about my hotel stay for work productivity.",
+      "acceptanceCriteria": [
+        "src/components/survey/survey-form.tsx renders 4-step survey with progress indicator (4 dots connected by line)",
+        "Question 1: 'Como foi o Wi-Fi para trabalho?' with 5 clickable stars (48px, purple when selected)",
+        "Question 2: 'Tinha espaço adequado para trabalhar no quarto?' with 3 buttons: Sim (green), Parcial (yellow), Não (red)",
+        "Question 3: 'Conseguiu se concentrar sem ruído?' with 5 clickable stars",
+        "Question 4: 'Recomendaria para outro viajante a trabalho?' with 3 buttons: Sim, Talvez, Não",
+        "Submit button disabled until all 4 answered",
+        "After submit: shows confirmation screen with green check icon and 'Obrigado!' message",
+        "src/app/(app)/survey/[bookingId]/page.tsx loads booking info and renders SurveyForm",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": "Follow wireframe from PRD section 9.4."
+    },
+    {
+      "id": "US-032",
+      "title": "Create survey banner component for pending surveys",
+      "description": "As a traveler, I want to see a banner prompting me to rate my recent hotel stay when I have pending surveys.",
+      "acceptanceCriteria": [
+        "src/components/survey/survey-banner.tsx renders a banner card with: 'Avalie sua estadia no [Hotel Name]' text, stay date, and 'Avaliar agora' button",
+        "Banner is displayed at top of search page when GET /api/surveys?status=pending returns results",
+        "Clicking 'Avaliar agora' navigates to /survey/{bookingId}",
+        "Banner can be dismissed (X button) for current session",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-033",
+      "title": "Create dashboard top hotels API route",
+      "description": "As a developer, I need an endpoint returning the company's most booked hotels with StayScore averages.",
+      "acceptanceCriteria": [
+        "GET /api/dashboard/top-hotels?limit=10 returns hotels ordered by booking count for current user's company",
+        "Each hotel includes: id, name, city, bookings_count, total_spent, avg_stayscore (average of all StayScore records for that hotel)",
+        "Filters by company_id from current session",
+        "Returns 403 if user role is TRAVELER",
+        "Typecheck passes"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-034",
+      "title": "Create dashboard heatmap and trends API routes",
+      "description": "As a developer, I need endpoints for city heatmap data and price trends.",
+      "acceptanceCriteria": [
+        "GET /api/dashboard/heatmap returns cities aggregated from company bookings: city, state, lat, lng, total_spent, avg_stayscore, bookings_count",
+        "GET /api/dashboard/trends?weeks=12 returns price trend data for top 5 hotels: weekly average prices for last 12 weeks from PriceEntry table",
+        "Both endpoints filter by company_id and check role authorization",
+        "Typecheck passes"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-035",
+      "title": "Create dashboard insights API route with Claude AI",
+      "description": "As a developer, I need an endpoint that generates actionable insights using Claude AI from company booking data.",
+      "acceptanceCriteria": [
+        "GET /api/dashboard/insights fetches company booking data, top hotels, and scores, then sends to Claude API",
+        "Claude prompt asks for 3-5 actionable insights in JSON format with type (saving|quality|alert), title, description, action",
+        "Results cached for 7 days to minimize API costs",
+        "Returns array of insight objects",
+        "Falls back to static demo insights if Claude API fails",
+        "Typecheck passes"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-036",
+      "title": "Create dashboard top hotels table component",
+      "description": "As a travel manager, I want to see a ranked table of the company's most booked hotels with StayScore.",
+      "acceptanceCriteria": [
+        "src/components/dashboard/top-hotels-table.tsx renders a table with columns: #, Hotel, Cidade, Reservas, Gasto Total (R$), StayScore",
+        "StayScore column shows colored badge (green/yellow/red)",
+        "Rows sorted by booking count descending",
+        "Gasto Total formatted in BRL (R$ XX.XXX)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-037",
+      "title": "Create dashboard city heatmap component",
+      "description": "As a travel manager, I want a map of Brazil showing spending and StayScore by city as colored circles.",
+      "acceptanceCriteria": [
+        "src/components/dashboard/city-heatmap.tsx renders Google Map of Brazil (center: -15.78, -47.93, zoom: 4)",
+        "Each city shown as a circle overlay: size proportional to total_spent, color based on avg_stayscore (red < 60, yellow 60-79, green >= 80)",
+        "Clicking a circle shows tooltip with: city name, total spent, avg StayScore, booking count",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 37,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-038",
+      "title": "Create dashboard price trends chart component",
+      "description": "As a travel manager, I want a line chart showing price evolution for top hotels over 12 weeks.",
+      "acceptanceCriteria": [
+        "src/components/dashboard/price-trends-chart.tsx renders a recharts LineChart",
+        "X axis: last 12 weeks (YYYY-WW format displayed as 'Sem N')",
+        "Y axis: price in R$/noite",
+        "One colored line per hotel (up to 5), with legend below showing hotel names with toggles",
+        "Tooltip on hover shows exact price per hotel for that week",
+        "Responsive width",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 38,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-039",
+      "title": "Create dashboard insight card and ROI index components",
+      "description": "As a travel manager, I want insight cards and an ROI index widget on the dashboard.",
+      "acceptanceCriteria": [
+        "src/components/dashboard/insight-card.tsx renders card with colored left border (green=saving, yellow=quality, red=alert), icon, title (bold), description text, optional 'Ver detalhes' link",
+        "src/components/dashboard/roi-index.tsx renders ROI score as large number with trend arrow (up green, down red) vs previous period",
+        "ROI calculated as: (avg_stayscore × avg_survey_satisfaction) / avg_price_per_night × 100",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 39,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-040",
+      "title": "Create dashboard page assembling all components",
+      "description": "As a travel manager, I want a complete dashboard page with KPIs, top hotels, heatmap, trends, and insights.",
+      "acceptanceCriteria": [
+        "src/app/(app)/dashboard/page.tsx only accessible to TRAVEL_MANAGER and FINANCE_MANAGER roles (redirects TRAVELER to /search)",
+        "Sidebar (240px) with menu: Visão Geral, Top Hotéis, Mapa de Calor, Tendências, Insights. Plus period filter dropdown (30d, 90d, 12m) and city filter",
+        "KPI row: 4 cards showing Total em Hospedagens (R$), StayScore Médio, Reservas no Período, Economia Potencial",
+        "Below KPIs: TopHotelsTable (50% width) + CityHeatmap (50% width) side by side",
+        "Full-width PriceTrendsChart below",
+        "Insights section: 3 InsightCards in a row + ROI Index widget",
+        "Fetches all 4 API endpoints in parallel on mount",
+        "Loading skeletons for each section",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 40,
+      "passes": false,
+      "notes": "Follow wireframe from PRD section 9.5."
+    },
+    {
+      "id": "US-041",
+      "title": "Add responsive design and mobile layout",
+      "description": "As a user, I want the app to work well on tablet (768px+) and mobile (375px+) screens.",
+      "acceptanceCriteria": [
+        "Search page: hotel cards stack vertically on mobile, image goes full width on top of content",
+        "Hotel detail: sections stack vertically, map and workspace list are full width stacked",
+        "Dashboard: sidebar collapses to hamburger menu on mobile, KPI cards wrap to 2x2 grid, charts are full width",
+        "Navbar: search input collapses to icon on mobile that expands on click",
+        "All touch targets are at least 44px",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 41,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-042",
+      "title": "Add loading states, error handling, and empty states",
+      "description": "As a user, I want clear feedback when data is loading, when errors occur, or when no results are found.",
+      "acceptanceCriteria": [
+        "All API-dependent pages show skeleton loaders while fetching",
+        "Error states show friendly message with retry button: 'Algo deu errado. Tente novamente.'",
+        "Search empty state: illustration + 'Busque uma cidade para encontrar os melhores hotéis para trabalho'",
+        "Search no results: 'Nenhum hotel encontrado para essa busca. Tente outra cidade.'",
+        "Dashboard shows 'Sem dados suficientes' placeholders when company has no bookings",
+        "API routes return proper HTTP status codes: 400 for bad input, 401 for unauth, 403 for forbidden, 500 for server error",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 42,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
