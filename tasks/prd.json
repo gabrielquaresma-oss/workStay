@@ -146,8 +146,8 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": "This is temporary for hackathon demo. Prices should look realistic."
+      "passes": true,
+      "notes": "Deterministic via seeded PRNG. Realistic BRL pricing with weekday/weekend variation and hotel tier detection."
     },
     {
       "id": "US-010",

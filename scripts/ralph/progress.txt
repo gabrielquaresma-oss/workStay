@@ -125,3 +125,13 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Price-productivity uses efficiency index: avgProductivity / normalizedPrice
   - All sub-scores clamped to 0-100 before weighting
 ---
+
+## 2026-04-08 - US-009
+- What was implemented: Price simulator with deterministic seeded PRNG and Brazilian hotel tier pricing
+- Files changed:
+  - src/lib/price-simulator.ts (new — generatePrices function)
+- **Learnings for future iterations:**
+  - Price tiers: Budget <R$200 (Ibis, Go Inn), Midscale R$200-400 (Mercure, Novotel), Upscale R$400-700 (Hilton, Sheraton)
+  - Weekday prices are 15-30% higher than weekend
+  - Determinism achieved via string hash → LCG PRNG seeded by hotel+city+month
+---
