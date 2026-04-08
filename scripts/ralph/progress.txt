@@ -203,6 +203,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Sizes: sm=40px, md=52px, lg=80px. "Score" label only on md/lg.
 ---
 
+## 2026-04-08 - US-017
+- What was implemented: Score breakdown component with 6 criteria in responsive grid
+- Files changed:
+  - src/components/hotel/score-breakdown.tsx (new)
+- **Learnings for future iterations:**
+  - CRITERIA array maps ScoreBreakdown keys to labels, weights, and icons — reusable for any display
+  - Lucide icons: Wifi, Monitor, Building2, MapPin, DollarSign, Star
+  - Score <50 gets red background highlight
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
