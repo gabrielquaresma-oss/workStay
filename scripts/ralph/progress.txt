@@ -160,6 +160,18 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Manual browser verification needed (no browser tools available)
 ---
 
+## 2026-04-08 - US-013
+- What was implemented: Auth API routes for login, me, and logout
+- Files changed:
+  - src/app/api/auth/login/route.ts (new — POST with role or email+password)
+  - src/app/api/auth/me/route.ts (new — GET current user)
+  - src/app/api/auth/logout/route.ts (new — POST clear session)
+- **Learnings for future iterations:**
+  - Next.js 16 route handlers use `Response.json()` (not NextResponse.json())
+  - Route handler files are named `route.ts` in the directory matching the URL path
+  - Auth routes are outside route groups — placed in `src/app/api/auth/`
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

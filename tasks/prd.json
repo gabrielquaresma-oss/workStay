@@ -212,8 +212,8 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "POST /api/auth/login (email+password or role), GET /api/auth/me, POST /api/auth/logout."
     },
     {
       "id": "US-014",
