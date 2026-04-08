@@ -1,0 +1,276 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USUÁRIOS ====================
+
+model User {
+  id            String    @id @default(cuid())
+  onfly_id      String    @unique
+  email         String    @unique
+  name          String
+  role          UserRole  @default(TRAVELER)
+  company_id    String
+  company       Company   @relation(fields: [company_id], references: [id])
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  surveys       Survey[]
+  searches      SearchLog[]
+
+  @@index([company_id])
+  @@index([onfly_id])
+}
+
+model Company {
+  id            String    @id @default(cuid())
+  onfly_id      String    @unique
+  name          String
+  created_at    DateTime  @default(now())
+
+  users         User[]
+  bookings      Booking[]
+
+  @@index([onfly_id])
+}
+
+enum UserRole {
+  TRAVELER
+  TRAVEL_MANAGER
+  FINANCE_MANAGER
+  ADMIN
+}
+
+// ==================== HOTÉIS E SCORES ====================
+
+model Hotel {
+  id                String    @id @default(cuid())
+  google_place_id   String    @unique
+  name              String
+  address           String
+  city              String
+  state             String
+  latitude          Float
+  longitude         Float
+  google_rating     Float?
+  google_total_reviews Int?
+  photo_references  String[]
+  amenities         Json?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  scores            StayScore[]
+  reviews           HotelReview[]
+  surveys           Survey[]
+  bookings          Booking[]
+  nearby_workspaces NearbyWorkspace[]
+  price_entries     PriceEntry[]
+
+  @@index([city, state])
+  @@index([google_place_id])
+}
+
+model StayScore {
+  id                      String    @id @default(cuid())
+  hotel_id                String
+  hotel                   Hotel     @relation(fields: [hotel_id], references: [id])
+
+  total_score             Float
+
+  wifi_score              Float
+  workspace_room_score    Float
+  workspace_hotel_score   Float
+  coworking_proximity_score Float
+  price_productivity_score Float
+  traveler_rating_score   Float
+
+  reviews_analyzed        Int
+  surveys_count           Int       @default(0)
+  data_sources            Json
+
+  calculated_at           DateTime  @default(now())
+  expires_at              DateTime
+
+  @@unique([hotel_id, calculated_at])
+  @@index([hotel_id])
+  @@index([expires_at])
+}
+
+model HotelReview {
+  id                  String    @id @default(cuid())
+  hotel_id            String
+  hotel               Hotel     @relation(fields: [hotel_id], references: [id])
+
+  google_review_id    String?   @unique
+  author_name         String
+  rating              Float
+  text                String
+  publish_time        DateTime?
+  language            String?
+
+  sentiment_analysis  Json?
+  is_work_relevant    Boolean   @default(false)
+  work_relevance_score Float?
+
+  analyzed_at         DateTime?
+  created_at          DateTime  @default(now())
+
+  @@index([hotel_id])
+  @@index([is_work_relevant])
+}
+
+// ==================== SURVEYS ====================
+
+model Survey {
+  id            String    @id @default(cuid())
+  hotel_id      String
+  hotel         Hotel     @relation(fields: [hotel_id], references: [id])
+  user_id       String
+  user          User      @relation(fields: [user_id], references: [id])
+  booking_id    String?
+  booking       Booking?  @relation(fields: [booking_id], references: [id])
+
+  wifi_rating         Int
+  workspace_adequate  WorkspaceAdequacy
+  silence_rating      Int
+  would_recommend     Recommendation
+
+  responded_at  DateTime  @default(now())
+  stay_date     DateTime
+
+  @@unique([hotel_id, user_id, stay_date])
+  @@index([hotel_id])
+  @@index([user_id])
+}
+
+enum WorkspaceAdequacy {
+  SIM
+  PARCIAL
+  NAO
+}
+
+enum Recommendation {
+  SIM
+  TALVEZ
+  NAO
+}
+
+// ==================== RESERVAS (Onfly) ====================
+
+model Booking {
+  id                String    @id @default(cuid())
+  onfly_booking_id  String    @unique
+  company_id        String
+  company           Company   @relation(fields: [company_id], references: [id])
+  hotel_id          String?
+  hotel             Hotel?    @relation(fields: [hotel_id], references: [id])
+
+  hotel_name        String
+  city              String
+  check_in          DateTime
+  check_out         DateTime
+  total_price       Float
+  price_per_night   Float
+  status            BookingStatus
+
+  synced_at         DateTime  @default(now())
+
+  surveys           Survey[]
+
+  @@index([company_id])
+  @@index([hotel_id])
+  @@index([check_in])
+  @@index([status])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+// ==================== WORKNEARBY ====================
+
+model NearbyWorkspace {
+  id                String    @id @default(cuid())
+  hotel_id          String
+  hotel             Hotel     @relation(fields: [hotel_id], references: [id])
+
+  google_place_id   String
+  name              String
+  type              WorkspaceType
+  address           String
+  latitude          Float
+  longitude         Float
+  distance_meters   Int
+  google_rating     Float?
+  total_reviews     Int?
+
+  opening_hours     Json?
+
+  has_wifi          Boolean   @default(false)
+  has_power_outlets Boolean   @default(false)
+  is_quiet          Boolean   @default(false)
+
+  photo_reference   String?
+
+  cached_at         DateTime  @default(now())
+  expires_at        DateTime
+
+  @@unique([hotel_id, google_place_id])
+  @@index([hotel_id])
+  @@index([type])
+}
+
+enum WorkspaceType {
+  COWORKING
+  CAFE
+}
+
+// ==================== PREÇOS (Simulados no MVP) ====================
+
+model PriceEntry {
+  id            String    @id @default(cuid())
+  hotel_id      String
+  hotel         Hotel     @relation(fields: [hotel_id], references: [id])
+
+  date          DateTime  @db.Date
+  price         Float
+  source        PriceSource @default(SIMULATED)
+
+  created_at    DateTime  @default(now())
+
+  @@unique([hotel_id, date, source])
+  @@index([hotel_id, date])
+}
+
+enum PriceSource {
+  SIMULATED
+  ONFLY_HISTORICAL
+  EXTERNAL
+}
+
+// ==================== LOGS E ANALYTICS ====================
+
+model SearchLog {
+  id            String    @id @default(cuid())
+  user_id       String
+  user          User      @relation(fields: [user_id], references: [id])
+
+  query         String
+  city          String?
+  filters       Json?
+  results_count Int
+
+  created_at    DateTime  @default(now())
+
+  @@index([user_id])
+  @@index([created_at])
+}
