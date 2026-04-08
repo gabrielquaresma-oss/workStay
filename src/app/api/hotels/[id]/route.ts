@@ -1,7 +1,6 @@
 import { getOrCreateUser } from "@/lib/auth";
 import { getPlaceDetails, getPhotoUrl } from "@/lib/google-places";
-import { analyzeReviews } from "@/lib/sentiment-analyzer";
-import { calculateStayScore } from "@/lib/stayscore-calculator";
+import { getOrComputeStayScore } from "@/lib/sentiment-cache";
 import { generatePrices } from "@/lib/price-simulator";
 
 export async function GET(
@@ -16,26 +15,25 @@ export async function GET(
     // Fetch place details from Google
     const details = await getPlaceDetails(id);
 
-    // Analyze reviews
     const reviews = (details.reviews ?? []).map((r) => ({
       text: r.text?.text ?? "",
       rating: r.rating,
+      authorName: r.authorAttribution?.displayName,
+      publishTime: r.publishTime,
     }));
-    const sentiment = await analyzeReviews(
-      details.displayName?.text ?? "",
-      reviews
-    );
 
-    // Calculate StayScore
-    const stayScore = calculateStayScore({
-      sentiment,
-      surveys: [],
+    // Use cached score or compute fresh
+    const { sentiment, stayScore } = await getOrComputeStayScore({
+      placeId: id,
+      hotelName: details.displayName?.text ?? "",
+      address: details.formattedAddress ?? "",
+      city: "",
+      latitude: details.location?.latitude ?? 0,
+      longitude: details.location?.longitude ?? 0,
       googleRating: details.rating ?? null,
-      amenities: null,
-      starCategory: null,
-      nearbyWorkspaces: [],
-      avgPricePerNight: null,
-      cityAvgPrice: null,
+      googleTotalReviews: details.userRatingCount ?? null,
+      photoReferences: (details.photos ?? []).map((p) => p.name),
+      reviews,
     });
 
     // Generate photo URLs

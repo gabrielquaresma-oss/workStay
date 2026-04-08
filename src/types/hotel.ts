@@ -77,3 +77,8 @@ export interface PromptInterpretation {
   original_prompt: string;
   confidence: number;
 }
+
+export type SearchStreamMessage =
+  | { type: "hotel"; data: HotelSearchResult }
+  | { type: "done"; total: number }
+  | { type: "error"; message: string };

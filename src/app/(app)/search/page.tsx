@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, MapPin, Building2, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, MapPin, Building2, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotelCard } from "@/components/hotel/hotel-card";
@@ -13,6 +13,22 @@ import { DynamicTitle } from "@/components/home/dynamic-title";
 import { FeaturedSections } from "@/components/home/featured-sections";
 import { Footer } from "@/components/layout/footer";
 import type { HotelSearchResult, FeaturedSection } from "@/types/hotel";
+
+// ==================== HELPERS ====================
+
+function sortResults(results: HotelSearchResult[], sort: string): HotelSearchResult[] {
+  return [...results].sort((a, b) => {
+    if (sort === "price") {
+      return (a.price_per_night ?? Infinity) - (b.price_per_night ?? Infinity);
+    }
+    if (sort === "value") {
+      const valueA = (a.stayscore?.total_score ?? 0) / (a.price_per_night ?? 1);
+      const valueB = (b.stayscore?.total_score ?? 0) / (b.price_per_night ?? 1);
+      return valueB - valueA;
+    }
+    return (b.stayscore?.total_score ?? 0) - (a.stayscore?.total_score ?? 0);
+  });
+}
 
 // ==================== HOMEPAGE VIEW ====================
 
@@ -94,7 +110,7 @@ function SearchResultsView() {
 
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<HotelSearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState(false);
 
@@ -104,32 +120,81 @@ function SearchResultsView() {
   const [sort, setSort] = useState("stayscore");
   const [showFilters, setShowFilters] = useState(false);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Client-side filtering + sorting
+  const displayedResults = useMemo(() => {
+    let filtered = results;
+    if (minScore > 0) {
+      filtered = filtered.filter(
+        (r) => (r.stayscore?.total_score ?? 0) >= minScore
+      );
+    }
+    if (maxPrice > 0) {
+      filtered = filtered.filter(
+        (r) => (r.price_per_night ?? 0) <= maxPrice
+      );
+    }
+    return sortResults(filtered, sort);
+  }, [results, minScore, maxPrice, sort]);
+
   const doSearch = useCallback(
     async (q: string, weights?: string | null) => {
       if (!q.trim()) return;
-      setLoading(true);
+
+      // Cancel previous stream
+      abortControllerRef.current?.abort();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      setStreaming(true);
       setSearched(true);
       setError(false);
+      setResults([]);
 
       const params = new URLSearchParams({ q: q.trim() });
-      if (minScore > 0) params.set("min_score", String(minScore));
-      if (maxPrice > 0) params.set("max_price", String(maxPrice));
-      if (sort !== "stayscore") params.set("sort", sort);
       if (weights) params.set("weights", weights);
 
       try {
-        const res = await fetch(`/api/hotels/search?${params.toString()}`);
+        const res = await fetch(`/api/hotels/search?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Search failed");
-        const data = await res.json();
-        setResults(data.hotels ?? []);
-      } catch {
-        setResults([]);
+
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const msg = JSON.parse(line);
+              if (msg.type === "hotel") {
+                setResults((prev) => [...prev, msg.data]);
+              } else if (msg.type === "error") {
+                setError(true);
+              }
+            } catch {
+              // Skip malformed lines
+            }
+          }
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         setError(true);
       } finally {
-        setLoading(false);
+        setStreaming(false);
       }
     },
-    [minScore, maxPrice, sort]
+    []
   );
 
   useEffect(() => {
@@ -143,7 +208,7 @@ function SearchResultsView() {
     if (e.key === "Enter") doSearch(query);
   }
 
-  const hasResults = searched && !loading && !error;
+  const hasResults = searched && !streaming && !error;
 
   return (
     <div>
@@ -171,7 +236,7 @@ function SearchResultsView() {
                 />
                 <Button
                   onClick={() => doSearch(query)}
-                  disabled={loading}
+                  disabled={streaming}
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 rounded-full bg-gradient-to-r from-[#2872FA] to-[#009EFB] hover:from-[#1D5FE0] hover:to-[#008DE0] text-white shadow-md"
                 >
                   <Search className="h-4 w-4 mr-2" />
@@ -236,7 +301,7 @@ function SearchResultsView() {
             </div>
             <Button
               onClick={() => doSearch(query)}
-              disabled={loading}
+              disabled={streaming}
               className="rounded-full px-6"
             >
               Buscar
@@ -288,14 +353,6 @@ function SearchResultsView() {
                   <option value="value">Custo-beneficio</option>
                 </select>
               </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => doSearch(query)}
-                className="rounded-lg"
-              >
-                Aplicar
-              </Button>
             </div>
           )}
         </div>
@@ -303,13 +360,15 @@ function SearchResultsView() {
 
       <div className={searched ? "bg-[#F2F5F7] py-6 mt-2" : ""}>
         <div className="max-w-5xl mx-auto px-4">
-          {hasResults && results.length > 0 && (
+          {searched && displayedResults.length > 0 && (
             <p className="text-sm text-muted-foreground mb-4">
-              {results.length} hoteis encontrados
+              {displayedResults.length} hoteis encontrados
+              {streaming && " (buscando mais...)"}
             </p>
           )}
 
-          {loading && (
+          {/* Skeleton: only when streaming started but no results yet */}
+          {streaming && results.length === 0 && (
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex bg-white rounded-xl border overflow-hidden">
@@ -328,15 +387,24 @@ function SearchResultsView() {
             </div>
           )}
 
-          {!loading && results.length > 0 && (
+          {/* Results - shown progressively as they stream in */}
+          {displayedResults.length > 0 && (
             <div className="space-y-4">
-              {results.map((result) => (
+              {displayedResults.map((result) => (
                 <HotelCard key={result.hotel.id} result={result} />
               ))}
+
+              {/* Bottom loading indicator while more results stream */}
+              {streaming && (
+                <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Buscando mais hoteis...
+                </div>
+              )}
             </div>
           )}
 
-          {!loading && !searched && (
+          {!streaming && !searched && (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-primary/10 mb-6">
                 <Building2 className="h-10 w-10 text-primary" />
@@ -350,11 +418,11 @@ function SearchResultsView() {
             </div>
           )}
 
-          {!loading && error && (
+          {!streaming && error && (
             <ErrorState onRetry={() => doSearch(query)} />
           )}
 
-          {!loading && searched && !error && results.length === 0 && (
+          {!streaming && searched && !error && results.length === 0 && (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-muted mb-6">
                 <Search className="h-10 w-10 text-muted-foreground" />
