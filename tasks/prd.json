@@ -597,8 +597,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 36,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Table with ranked hotels, StayScore badges, BRL formatting."
     },
     {
       "id": "US-037",
@@ -612,8 +612,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 37,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Google Map of Brazil with color-coded circles. Size proportional to spend, color by StayScore."
     },
     {
       "id": "US-038",
@@ -630,8 +630,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 38,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Recharts LineChart with 5 hotel lines, weekly data, responsive container."
     },
     {
       "id": "US-039",
@@ -645,8 +645,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 39,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "InsightCard with colored left border and icon. RoiIndex with trend arrow."
     },
     {
       "id": "US-040",

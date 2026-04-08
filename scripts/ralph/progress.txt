@@ -367,6 +367,20 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Trends generated with sine wave variation for realistic-looking chart data
 ---
 
+## 2026-04-08 - US-036/037/038/039
+- What was implemented: All dashboard UI components — table, heatmap, chart, insights, ROI
+- Files changed:
+  - src/components/dashboard/top-hotels-table.tsx (new)
+  - src/components/dashboard/city-heatmap.tsx (new)
+  - src/components/dashboard/price-trends-chart.tsx (new)
+  - src/components/dashboard/insight-card.tsx (new)
+  - src/components/dashboard/roi-index.tsx (new)
+- **Learnings for future iterations:**
+  - Recharts Tooltip formatter must not annotate parameter types — use inferred types to avoid TS errors
+  - City heatmap reuses setOptions from worknearby map — be careful with module-level flags
+  - ROI formula: (avgStayscore × avgSatisfaction) / avgPricePerNight × 100
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
