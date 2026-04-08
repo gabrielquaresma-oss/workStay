@@ -392,6 +392,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Sidebar collapses on mobile via hidden lg:block
 ---
 
+## 2026-04-08 - US-041
+- What was implemented: Responsive design for mobile (375px+) and tablet (768px+)
+- Files changed:
+  - src/components/layout/navbar.tsx (updated — mobile search collapse)
+- **Learnings for future iterations:**
+  - Most components already built with responsive classes (flex-col sm:flex-row, hidden lg:block, etc.)
+  - Navbar: desktop search visible at sm+, mobile shows icon that expands overlay
+  - Touch targets: h-11 (44px) on buttons and inputs
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

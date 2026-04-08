@@ -56,6 +56,8 @@ export function Navbar() {
         .toUpperCase()
     : "?";
 
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
   const isManager =
     user?.role === "TRAVEL_MANAGER" || user?.role === "FINANCE_MANAGER";
 
@@ -66,9 +68,10 @@ export function Navbar() {
         StayScore
       </a>
 
-      {/* Search */}
+      {/* Search — full on desktop, icon on mobile */}
       <div className="flex-1 flex justify-center">
-        <div className="relative w-full max-w-[480px]">
+        {/* Desktop search */}
+        <div className="relative w-full max-w-[480px] hidden sm:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
@@ -76,10 +79,38 @@ export function Navbar() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full h-11 pl-10 pr-4 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
+        {/* Mobile search icon */}
+        <button
+          onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+          className="sm:hidden h-11 w-11 flex items-center justify-center rounded-md hover:bg-muted"
+        >
+          <Search className="h-5 w-5 text-muted-foreground" />
+        </button>
       </div>
+
+      {/* Mobile expanded search */}
+      {mobileSearchOpen && (
+        <div className="absolute top-16 left-0 right-0 bg-white border-b p-3 sm:hidden z-40">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Busque por cidade, região ou hotel..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                handleKeyDown(e);
+                if (e.key === "Enter") setMobileSearchOpen(false);
+              }}
+              autoFocus
+              className="w-full h-11 pl-10 pr-4 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+        </div>
+      )}
 
       {/* User menu */}
       {user && (
