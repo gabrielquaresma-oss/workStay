@@ -397,8 +397,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 24,
-      "passes": false,
-      "notes": "Use AdvancedMarkerElement for custom pin styling."
+      "passes": true,
+      "notes": "Uses @googlemaps/js-api-loader v2 functional API. Purple hotel pin, blue coworking pins, green cafe pins. 1km circle."
     },
     {
       "id": "US-025",

@@ -15,6 +15,9 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
 - TypeScript interfaces for API shapes live in src/types/ (hotel.ts, survey.ts, google-places.ts, dashboard.ts)
 - shadcn/ui components are in src/components/ui/ — created manually (not via CLI). They use Radix UI primitives + class-variance-authority (CVA) + cn() utility.
 - Radix UI packages installed: @radix-ui/react-slot, react-dialog, react-dropdown-menu, react-separator, react-slider, react-progress
+- @googlemaps/js-api-loader v2 uses functional API: `setOptions({key})` + `importLibrary("maps")`, NOT `new Loader()`. `setOptions` must be called once globally.
+- Next.js 16 route handler params are Promises — must `await params` before destructuring
+- Next.js 16 `cookies()` is async — must `await cookies()`
 
 ## 2026-04-08 - US-001
 - What was implemented: Full Next.js project scaffold with App Router, TypeScript, Tailwind CSS v4
@@ -271,6 +274,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Haversine formula for distance calculation between coordinates
   - Cafe work-friendliness assessed by Claude with work_friendly_score > 0.5 threshold
   - Coworkings assumed to have wifi/power/quiet; cafes inferred from score levels
+---
+
+## 2026-04-08 - US-024
+- What was implemented: WorkNearby map component with Google Maps, colored pins, 1km circle
+- Files changed:
+  - src/components/worknearby/nearby-map.tsx (new)
+- **Learnings for future iterations:**
+  - @googlemaps/js-api-loader v2 uses functional API: `setOptions({key})` + `importLibrary("maps")` — NOT `new Loader()`
+  - AdvancedMarkerElement requires `mapId` to be set on the Map
+  - `setOptions()` must only be called once globally (use module-level flag)
 ---
 
 ## 2026-04-08 - US-010
