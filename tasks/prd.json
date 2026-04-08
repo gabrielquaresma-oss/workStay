@@ -161,8 +161,8 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": "For hackathon MVP, use simplified token-based auth rather than full Onfly OAuth."
+      "passes": true,
+      "notes": "Uses httpOnly cookie with JSON payload. 3 demo users (TRAVELER, TRAVEL_MANAGER, FINANCE_MANAGER). Async cookies() for Next.js 16."
     },
     {
       "id": "US-011",

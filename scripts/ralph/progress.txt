@@ -135,3 +135,14 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Weekday prices are 15-30% higher than weekend
   - Determinism achieved via string hash → LCG PRNG seeded by hotel+city+month
 ---
+
+## 2026-04-08 - US-010
+- What was implemented: Auth helpers with demo users and session management via httpOnly cookies
+- Files changed:
+  - src/lib/auth.ts (new — getCurrentUser, setSession, clearSession, getDemoUser)
+- **Learnings for future iterations:**
+  - Next.js 16: `cookies()` from `next/headers` is async — must use `await cookies()`
+  - Session cookie name: `stayscore-session`, JSON payload: `{userId, role, companyId}`
+  - Demo user IDs: `demo-traveler-001`, `demo-manager-001`, `demo-finance-001`; company: `demo-company-001`
+  - cookies().set() and .delete() only work in Route Handlers and Server Functions, not in Server Components
+---
