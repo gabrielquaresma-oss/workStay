@@ -463,8 +463,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 28,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "DateSuggestion only shows if savings > R$30. AlternativeHotels shows mini cards with StayScore badge and savings."
     },
     {
       "id": "US-029",
