@@ -234,6 +234,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - For MVP, doesn't persist to DB — calculates on the fly each time
 ---
 
+## 2026-04-08 - US-020
+- What was implemented: Hotel search page with filters, skeletons, empty states
+- Files changed:
+  - src/app/(app)/search/page.tsx (new)
+- **Learnings for future iterations:**
+  - Search page is a client component under (app) route group — URL is /search
+  - Uses useSearchParams for initial query from URL
+  - Filters: minScore, maxPrice, sort — passed as query params to API
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
