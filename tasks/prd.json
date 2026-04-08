@@ -520,8 +520,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 31,
-      "passes": false,
-      "notes": "Follow wireframe from PRD section 9.4."
+      "passes": true,
+      "notes": "4-step survey with star ratings, option buttons, progress dots. Confirmation screen on submit."
     },
     {
       "id": "US-032",

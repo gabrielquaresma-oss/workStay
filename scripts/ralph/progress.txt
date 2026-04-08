@@ -337,6 +337,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - All validation done server-side with proper 400 responses
 ---
 
+## 2026-04-08 - US-031
+- What was implemented: 4-step micro-survey form and survey page
+- Files changed:
+  - src/components/survey/survey-form.tsx (new — 4 steps with progress dots)
+  - src/app/(app)/survey/[bookingId]/page.tsx (new)
+- **Learnings for future iterations:**
+  - Survey page uses demo booking map for MVP. URL: /survey/{bookingId}
+  - Steps auto-advance on selection for star ratings and option buttons
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
