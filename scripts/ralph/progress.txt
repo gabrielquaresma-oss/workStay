@@ -194,6 +194,15 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - (app) route group wraps all authenticated pages — search, hotel, survey, dashboard all go under it
 ---
 
+## 2026-04-08 - US-016
+- What was implemented: StayScore circular badge component with color coding
+- Files changed:
+  - src/components/hotel/stayscore-badge.tsx (new)
+- **Learnings for future iterations:**
+  - StayScore color thresholds: green(#22C55E) >=80, yellow(#EAB308) >=60, red(#EF4444) <60
+  - Sizes: sm=40px, md=52px, lg=80px. "Score" label only on md/lg.
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
