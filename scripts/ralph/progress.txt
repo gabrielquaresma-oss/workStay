@@ -293,6 +293,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - src/components/worknearby/workspace-list.tsx (new)
 ---
 
+## 2026-04-08 - US-026
+- What was implemented: Date comparison API route with heatmap, best date, alternatives
+- Files changed:
+  - src/app/api/hotels/compare/route.ts (new)
+- **Learnings for future iterations:**
+  - addBusinessDays helper skips weekends
+  - Color: green if < 80% of original, yellow if 80-100%, red if > 100%
+  - Alternative hotels generated with random names + simulated prices
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

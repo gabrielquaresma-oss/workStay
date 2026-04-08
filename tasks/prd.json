@@ -431,8 +431,8 @@
         "Typecheck passes"
       ],
       "priority": 26,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "±3 business day range, color-coded heatmap, best date suggestion, up to 3 alternative hotels, annual savings."
     },
     {
       "id": "US-027",
