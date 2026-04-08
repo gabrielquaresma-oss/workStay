@@ -243,8 +243,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "App layout checks session cookie, redirects to /login if missing. Root page redirects to /search."
     },
     {
       "id": "US-016",

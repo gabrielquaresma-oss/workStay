@@ -183,6 +183,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Dashboard link shown only for TRAVEL_MANAGER and FINANCE_MANAGER roles
 ---
 
+## 2026-04-08 - US-015
+- What was implemented: Authenticated app layout with navbar + root page redirect
+- Files changed:
+  - src/app/(app)/layout.tsx (new — checks session cookie, wraps with Navbar)
+  - src/app/page.tsx (updated — redirects to /search)
+- **Learnings for future iterations:**
+  - `redirect()` from `next/navigation` works in server components — throws a special error to trigger redirect
+  - App layout reads cookie directly via `await cookies()` instead of calling API route
+  - (app) route group wraps all authenticated pages — search, hotel, survey, dashboard all go under it
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
