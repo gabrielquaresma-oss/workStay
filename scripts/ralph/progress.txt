@@ -354,6 +354,19 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - src/app/(app)/search/page.tsx (updated — added SurveyBanner import and render)
 ---
 
+## 2026-04-08 - US-033/034/035
+- What was implemented: Dashboard API routes — top-hotels, heatmap, trends, insights
+- Files changed:
+  - src/app/api/dashboard/top-hotels/route.ts (new)
+  - src/app/api/dashboard/heatmap/route.ts (new)
+  - src/app/api/dashboard/trends/route.ts (new)
+  - src/app/api/dashboard/insights/route.ts (new)
+- **Learnings for future iterations:**
+  - All dashboard routes check role — 403 for TRAVELER
+  - Demo data hardcoded for MVP; insights use Claude API with static fallback
+  - Trends generated with sine wave variation for realistic-looking chart data
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

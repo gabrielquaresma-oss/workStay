@@ -551,8 +551,8 @@
         "Typecheck passes"
       ],
       "priority": 33,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Returns demo top hotels with booking counts and avg StayScore. 403 for TRAVELER role."
     },
     {
       "id": "US-034",
@@ -565,8 +565,8 @@
         "Typecheck passes"
       ],
       "priority": 34,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Heatmap returns 5 cities with coordinates and spend data. Trends returns 12-week price data for top 5 hotels."
     },
     {
       "id": "US-035",
@@ -581,8 +581,8 @@
         "Typecheck passes"
       ],
       "priority": 35,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Uses Claude Haiku to generate insights from hotel data. Falls back to static demo insights on failure."
     },
     {
       "id": "US-036",
