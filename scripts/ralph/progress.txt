@@ -316,6 +316,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - src/components/compare/alternative-hotels.tsx (new)
 ---
 
+## 2026-04-08 - US-029
+- What was implemented: Complete hotel detail page with all 7 sections
+- Files changed:
+  - src/app/(app)/hotel/[id]/page.tsx (new)
+- **Learnings for future iterations:**
+  - Next.js 16: page params are Promises — use `use(params)` in client components, `await params` in server components
+  - Review sentiment type must match ReviewList's expected interface exactly — use explicit types, not Record<string, number>
+  - Sticky bottom bar uses `fixed bottom-0` with z-50
+  - Hotel detail page fetches hotel + nearby workspaces in separate useEffects (nearby depends on hotel)
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

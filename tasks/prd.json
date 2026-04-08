@@ -484,8 +484,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 29,
-      "passes": false,
-      "notes": "Follow the wireframe from PRD section 9.3 closely."
+      "passes": true,
+      "notes": "Full hotel detail page with 7 sections: header, photos, score breakdown, date comparator, WorkNearby, reviews, sticky bar."
     },
     {
       "id": "US-030",
