@@ -112,3 +112,16 @@ export function getDemoUser(
 ): SessionUser | null {
   return DEMO_USERS[role] ?? null;
 }
+
+/**
+ * Get current user or auto-create a TRAVEL_MANAGER session.
+ * Use this in API routes to ensure there is always a valid session.
+ */
+export async function getOrCreateUser(): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (user) return user;
+
+  const demoUser = getDemoUser("TRAVEL_MANAGER")!;
+  await setSession(demoUser);
+  return demoUser;
+}

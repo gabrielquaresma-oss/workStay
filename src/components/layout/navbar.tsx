@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, LogOut, User, LayoutDashboard } from "lucide-react";
+import { Search, User, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,11 +42,6 @@ export function Navbar() {
     if (e.key === "Enter") handleSearch();
   }
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }
-
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -62,30 +57,35 @@ export function Navbar() {
     user?.role === "TRAVEL_MANAGER" || user?.role === "FINANCE_MANAGER";
 
   return (
-    <nav className="h-16 bg-white shadow-sm flex items-center px-4 gap-4 sticky top-0 z-50">
+    <nav className="h-16 bg-white border-b border-border flex items-center px-4 lg:px-6 gap-4 sticky top-0 z-50">
       {/* Logo */}
-      <a href="/search" className="text-xl font-bold text-primary shrink-0">
-        StayScore
+      <a href="/search" className="flex items-center gap-2 shrink-0">
+        <span className="text-xl font-bold text-primary tracking-tight">
+          StayScore
+        </span>
+        <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+          by Onfly
+        </span>
       </a>
 
       {/* Search — full on desktop, icon on mobile */}
       <div className="flex-1 flex justify-center">
         {/* Desktop search */}
-        <div className="relative w-full max-w-[480px] hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full max-w-[520px] hidden sm:block">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Busque por cidade, região ou hotel..."
+            placeholder="Busque por cidade, regiao ou hotel..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-11 pl-10 pr-4 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full h-10 pl-10 pr-4 rounded-full bg-[#F2F5F7] border-0 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
           />
         </div>
         {/* Mobile search icon */}
         <button
           onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-          className="sm:hidden h-11 w-11 flex items-center justify-center rounded-md hover:bg-muted"
+          className="sm:hidden h-10 w-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
         >
           <Search className="h-5 w-5 text-muted-foreground" />
         </button>
@@ -93,12 +93,12 @@ export function Navbar() {
 
       {/* Mobile expanded search */}
       {mobileSearchOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-white border-b p-3 sm:hidden z-40">
+        <div className="absolute top-16 left-0 right-0 bg-white border-b border-border p-3 sm:hidden z-40">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Busque por cidade, região ou hotel..."
+              placeholder="Busque por cidade, regiao ou hotel..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -106,7 +106,7 @@ export function Navbar() {
                 if (e.key === "Enter") setMobileSearchOpen(false);
               }}
               autoFocus
-              className="w-full h-11 pl-10 pr-4 rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full h-10 pl-10 pr-4 rounded-full bg-[#F2F5F7] border-0 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
             />
           </div>
         </div>
@@ -116,12 +116,12 @@ export function Navbar() {
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center justify-center h-9 w-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold shrink-0">
+            <button className="flex items-center justify-center h-9 w-9 rounded-full bg-primary text-primary-foreground text-sm font-semibold shrink-0 hover:bg-primary/90 transition-colors">
               {initials}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <div className="px-2 py-1.5">
+          <DropdownMenuContent align="end" className="w-52">
+            <div className="px-3 py-2">
               <p className="text-sm font-medium">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
@@ -136,11 +136,6 @@ export function Navbar() {
                 Dashboard
               </DropdownMenuItem>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sair
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}

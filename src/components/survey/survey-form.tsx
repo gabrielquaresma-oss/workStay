@@ -37,6 +37,9 @@ export function SurveyForm({
     silenceRating > 0 &&
     wouldRecommend !== null;
 
+  const totalSteps = 4;
+  const progressPercent = Math.round((step / totalSteps) * 100);
+
   async function handleSubmit() {
     if (!canSubmit) return;
     setSubmitting(true);
@@ -64,47 +67,55 @@ export function SurveyForm({
 
   if (submitted) {
     return (
-      <div className="text-center py-16">
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold">Obrigado!</h2>
-        <p className="text-muted-foreground mt-2">
-          Sua avaliação ajuda outros viajantes a trabalho.
+      <div className="text-center py-12">
+        <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-green-50 mb-5">
+          <CheckCircle className="h-10 w-10 text-green-500" />
+        </div>
+        <h2 className="text-2xl font-bold tracking-tight">Obrigado!</h2>
+        <p className="text-muted-foreground mt-2 max-w-xs mx-auto">
+          Sua avaliacao ajuda outros viajantes a trabalho a encontrar os melhores hoteis.
         </p>
+        <Button
+          variant="outline"
+          className="mt-6"
+          onClick={() => window.location.href = "/search"}
+        >
+          Voltar para busca
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="text-lg font-semibold text-center mb-2">
-        Avalie sua estadia no {hotelName}
+      <h2 className="text-lg font-semibold text-center mb-1">
+        Avalie sua estadia
       </h2>
+      <p className="text-sm text-muted-foreground text-center mb-6">
+        {hotelName}
+      </p>
 
-      {/* Progress indicator */}
-      <div className="flex items-center justify-center gap-2 mb-8">
-        {[1, 2, 3, 4].map((s) => (
-          <div key={s} className="flex items-center">
-            <div
-              className={cn(
-                "h-3 w-3 rounded-full transition-colors",
-                s <= step ? "bg-primary" : "bg-muted"
-              )}
-            />
-            {s < 4 && (
-              <div
-                className={cn(
-                  "w-8 h-0.5",
-                  s < step ? "bg-primary" : "bg-muted"
-                )}
-              />
-            )}
-          </div>
-        ))}
+      {/* Progress bar */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            Pergunta {step} de {totalSteps}
+          </span>
+          <span className="text-xs font-medium text-primary">
+            {progressPercent}%
+          </span>
+        </div>
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-[#2872FA] to-[#009EFB] rounded-full transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
       {/* Step 1: Wi-Fi */}
       {step === 1 && (
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <p className="text-lg font-medium">
             Como foi o Wi-Fi para trabalho?
           </p>
@@ -116,14 +127,14 @@ export function SurveyForm({
                   setWifiRating(n);
                   setStep(2);
                 }}
-                className="p-1"
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
               >
                 <Star
                   className={cn(
-                    "h-12 w-12 transition-colors",
+                    "h-10 w-10 transition-colors",
                     n <= wifiRating
                       ? "fill-primary text-primary"
-                      : "text-gray-200 hover:text-gray-400"
+                      : "text-gray-200 hover:text-gray-300"
                   )}
                 />
               </button>
@@ -134,18 +145,18 @@ export function SurveyForm({
 
       {/* Step 2: Workspace */}
       {step === 2 && (
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <p className="text-lg font-medium">
-            Tinha espaço adequado para trabalhar no quarto?
+            Tinha espaco adequado para trabalhar no quarto?
           </p>
           <div className="flex justify-center gap-3">
             {(
               [
-                { value: "SIM" as const, label: "Sim", color: "bg-green-500 hover:bg-green-600" },
-                { value: "PARCIAL" as const, label: "Parcial", color: "bg-yellow-500 hover:bg-yellow-600" },
-                { value: "NAO" as const, label: "Não", color: "bg-red-500 hover:bg-red-600" },
+                { value: "SIM" as const, label: "Sim" },
+                { value: "PARCIAL" as const, label: "Parcial" },
+                { value: "NAO" as const, label: "Nao" },
               ]
-            ).map(({ value, label, color }) => (
+            ).map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => {
@@ -153,11 +164,10 @@ export function SurveyForm({
                   setStep(3);
                 }}
                 className={cn(
-                  "px-6 py-3 rounded-lg text-white font-medium transition-colors",
+                  "px-6 py-3 rounded-full font-medium transition-all border-2 cursor-pointer",
                   workspaceAdequate === value
-                    ? color
-                    : "bg-muted text-foreground hover:bg-muted/80",
-                  workspaceAdequate === value && color
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-foreground border-border hover:border-primary/50"
                 )}
               >
                 {label}
@@ -169,9 +179,9 @@ export function SurveyForm({
 
       {/* Step 3: Silence */}
       {step === 3 && (
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <p className="text-lg font-medium">
-            Conseguiu se concentrar sem ruído?
+            Conseguiu se concentrar sem ruido?
           </p>
           <div className="flex justify-center gap-2">
             {[1, 2, 3, 4, 5].map((n) => (
@@ -181,14 +191,14 @@ export function SurveyForm({
                   setSilenceRating(n);
                   setStep(4);
                 }}
-                className="p-1"
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
               >
                 <Star
                   className={cn(
-                    "h-12 w-12 transition-colors",
+                    "h-10 w-10 transition-colors",
                     n <= silenceRating
                       ? "fill-primary text-primary"
-                      : "text-gray-200 hover:text-gray-400"
+                      : "text-gray-200 hover:text-gray-300"
                   )}
                 />
               </button>
@@ -199,7 +209,7 @@ export function SurveyForm({
 
       {/* Step 4: Recommend */}
       {step === 4 && (
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6">
           <p className="text-lg font-medium">
             Recomendaria para outro viajante a trabalho?
           </p>
@@ -208,17 +218,17 @@ export function SurveyForm({
               [
                 { value: "SIM" as const, label: "Sim" },
                 { value: "TALVEZ" as const, label: "Talvez" },
-                { value: "NAO" as const, label: "Não" },
+                { value: "NAO" as const, label: "Nao" },
               ]
             ).map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => setWouldRecommend(value)}
                 className={cn(
-                  "px-6 py-3 rounded-lg font-medium transition-colors border",
+                  "px-6 py-3 rounded-full font-medium transition-all border-2 cursor-pointer",
                   wouldRecommend === value
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card hover:bg-muted"
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-foreground border-border hover:border-primary/50"
                 )}
               >
                 {label}
@@ -230,9 +240,9 @@ export function SurveyForm({
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="mt-6 w-full h-12"
+              className="mt-4 w-full h-12 rounded-full bg-gradient-to-r from-[#2872FA] to-[#009EFB] hover:from-[#1D5FE0] hover:to-[#008DE0] text-white shadow-md"
             >
-              {submitting ? "Enviando..." : "Enviar Avaliação"}
+              {submitting ? "Enviando..." : "Enviar Avaliacao"}
             </Button>
           )}
         </div>
@@ -242,7 +252,7 @@ export function SurveyForm({
       {step > 1 && !submitted && (
         <button
           onClick={() => setStep(step - 1)}
-          className="text-sm text-muted-foreground mt-6 mx-auto block hover:underline"
+          className="text-sm text-muted-foreground mt-8 mx-auto block hover:text-foreground transition-colors cursor-pointer"
         >
           Voltar
         </button>

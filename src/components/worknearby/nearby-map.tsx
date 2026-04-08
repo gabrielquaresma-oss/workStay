@@ -61,17 +61,17 @@ export function NearbyMap({
           map,
           center: { lat: hotelLat, lng: hotelLng },
           radius: 1000,
-          strokeColor: "#7C3AED",
+          strokeColor: "#2872FA",
           strokeOpacity: 0.5,
           strokeWeight: 2,
-          fillColor: "#7C3AED",
+          fillColor: "#2872FA",
           fillOpacity: 0.05,
         });
 
-        // Hotel marker (purple)
+        // Hotel marker
         const hotelPin = document.createElement("div");
         hotelPin.style.cssText =
-          "width:32px;height:32px;border-radius:50%;background:#7C3AED;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.3)";
+          "width:32px;height:32px;border-radius:50%;background:#2872FA;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.3)";
         hotelPin.textContent = "H";
 
         const hotelMarker = new AdvancedMarkerElement({

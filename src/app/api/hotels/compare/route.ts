@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getOrCreateUser } from "@/lib/auth";
 import { generatePrices } from "@/lib/price-simulator";
 
 function addBusinessDays(date: Date, days: number): Date {

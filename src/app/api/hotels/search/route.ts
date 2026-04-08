@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getOrCreateUser } from "@/lib/auth";
 import { searchHotels, getPlaceDetails } from "@/lib/google-places";
 import { analyzeReviews } from "@/lib/sentiment-analyzer";
 import { calculateStayScore } from "@/lib/stayscore-calculator";
@@ -6,10 +6,7 @@ import { generatePrices } from "@/lib/price-simulator";
 import type { HotelSearchResult } from "@/types/hotel";
 
 export async function GET(request: Request) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return Response.json({ error: "Não autenticado" }, { status: 401 });
-  }
+  await getOrCreateUser();
 
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");

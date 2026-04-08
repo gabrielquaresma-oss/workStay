@@ -16,9 +16,9 @@ const CRITERIA = [
 ];
 
 function getBarColor(score: number): string {
-  if (score >= 80) return "bg-[#22C55E]";
-  if (score >= 60) return "bg-[#EAB308]";
-  return "bg-[#EF4444]";
+  if (score >= 80) return "bg-[#16A34A]";
+  if (score >= 60) return "bg-[#CA8A04]";
+  return "bg-[#DC2626]";
 }
 
 export function ScoreBreakdown({ breakdown }: ScoreBreakdownProps) {

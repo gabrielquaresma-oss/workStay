@@ -20,7 +20,7 @@ interface PriceTrendsChartProps {
   trends: TrendData[];
 }
 
-const COLORS = ["#7C3AED", "#3B82F6", "#22C55E", "#EAB308", "#EF4444"];
+const COLORS = ["#2872FA", "#009EFB", "#16A34A", "#CA8A04", "#DC2626"];
 
 export function PriceTrendsChart({ trends }: PriceTrendsChartProps) {
   if (trends.length === 0) return null;

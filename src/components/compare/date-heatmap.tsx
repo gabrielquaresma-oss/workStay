@@ -34,7 +34,7 @@ export function DateHeatmap({ heatmap, bestDate }: DateHeatmapProps) {
         >
           {/* Best date star */}
           {bestDate === cell.date && (
-            <Star className="absolute top-1 right-1 h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+            <Star className="absolute top-1 right-1 h-3.5 w-3.5 fill-amber-400 text-amber-400" />
           )}
 
           <span className="text-[11px] text-muted-foreground">

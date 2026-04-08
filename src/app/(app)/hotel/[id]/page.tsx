@@ -167,13 +167,13 @@ export default function HotelDetailPage({
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         <Skeleton className="h-8 w-96" />
         <Skeleton className="h-4 w-64" />
-        <Skeleton className="h-[300px] w-full rounded-lg" />
+        <Skeleton className="h-[350px] w-full rounded-xl" />
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-20" />
+            <Skeleton key={i} className="h-20 rounded-lg" />
           ))}
         </div>
       </div>
@@ -184,31 +184,31 @@ export default function HotelDetailPage({
     return (
       <div className="max-w-5xl mx-auto px-4 py-16 text-center">
         <h2 className="text-xl font-semibold text-muted-foreground">
-          Hotel não encontrado
+          Hotel nao encontrado
         </h2>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 space-y-6 pb-24">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 pb-28">
       {/* Section 1 - Header */}
       <div>
-        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-          <span>Busca</span>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
+          <a href="/search" className="hover:text-primary transition-colors">Busca</a>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">{hotel.name}</span>
+          <span className="text-foreground font-medium">{hotel.name}</span>
         </div>
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-[28px] font-bold">{hotel.name}</h1>
-            <p className="text-muted-foreground mt-1">{hotel.address}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{hotel.name}</h1>
+            <p className="text-muted-foreground mt-1.5">{hotel.address}</p>
             {hotel.google_rating && (
-              <div className="flex items-center gap-1 mt-2">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <div className="flex items-center gap-1.5 mt-2.5">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                 <span className="font-semibold">{hotel.google_rating}</span>
                 <span className="text-sm text-muted-foreground">
-                  ({hotel.google_total_reviews} avaliações)
+                  ({hotel.google_total_reviews} avaliacoes)
                 </span>
               </div>
             )}
@@ -220,25 +220,25 @@ export default function HotelDetailPage({
       </div>
 
       {/* Section 2 - Photo gallery placeholder */}
-      <div className="grid grid-cols-3 gap-2 h-[250px]">
-        <div className="col-span-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center">
-          <span className="text-6xl text-primary/20">
+      <div className="grid grid-cols-3 gap-2 h-[350px]">
+        <div className="col-span-2 bg-gradient-to-br from-[#2872FA]/10 to-[#009EFB]/5 rounded-xl flex items-center justify-center">
+          <span className="text-7xl text-primary/15 font-bold">
             {hotel.name.charAt(0)}
           </span>
         </div>
         <div className="space-y-2">
-          <div className="h-[121px] bg-gradient-to-br from-primary/5 to-muted rounded-lg" />
-          <div className="h-[121px] bg-gradient-to-br from-muted to-primary/5 rounded-lg" />
+          <div className="h-[calc(50%-4px)] bg-gradient-to-br from-[#009EFB]/8 to-muted rounded-xl" />
+          <div className="h-[calc(50%-4px)] bg-gradient-to-br from-muted to-[#2872FA]/8 rounded-xl" />
         </div>
       </div>
 
       {/* Section 3 - Score Breakdown */}
       {stayscore && (
-        <Card>
-          <CardHeader>
-            <CardTitle>StayScore - Análise de Produtividade</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
+            <CardTitle className="text-lg">StayScore - Analise de Produtividade</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <ScoreBreakdown breakdown={stayscore.breakdown as ScoreBreakdownType} />
           </CardContent>
         </Card>
@@ -247,7 +247,7 @@ export default function HotelDetailPage({
       {/* Section 4 - Date Comparator */}
       <Card>
         <CardHeader>
-          <CardTitle>Comparador de Datas</CardTitle>
+          <CardTitle className="text-lg">Comparador de Datas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
@@ -283,7 +283,7 @@ export default function HotelDetailPage({
       {/* Section 5 - WorkNearby */}
       <Card>
         <CardHeader>
-          <CardTitle>Espaços de Trabalho Próximos</CardTitle>
+          <CardTitle className="text-lg">Espacos de Trabalho Proximos</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col lg:flex-row gap-4">
@@ -300,7 +300,7 @@ export default function HotelDetailPage({
               {workspacesLoading ? (
                 <div className="space-y-2">
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-20 w-full" />
+                    <Skeleton key={i} className="h-20 w-full rounded-lg" />
                   ))}
                 </div>
               ) : (
@@ -323,19 +323,19 @@ export default function HotelDetailPage({
       </Card>
 
       {/* Section 7 - Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg px-4 py-3 z-50">
+      <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md bg-white/90 border-t shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-4 py-3 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div>
             {todayPrice && (
-              <span className="text-2xl font-bold text-primary">
+              <span className="text-2xl font-bold text-foreground">
                 R$ {todayPrice.price.toFixed(0)}
-                <span className="text-sm font-normal text-muted-foreground">
+                <span className="text-sm font-normal text-muted-foreground ml-1">
                   /noite
                 </span>
               </span>
             )}
           </div>
-          <Button className="h-11 px-8">
+          <Button className="h-11 px-8 rounded-full bg-gradient-to-r from-[#2872FA] to-[#009EFB] hover:from-[#1D5FE0] hover:to-[#008DE0] text-white shadow-md">
             <ExternalLink className="h-4 w-4 mr-2" />
             Reservar na Onfly
           </Button>

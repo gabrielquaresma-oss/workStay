@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Navbar } from "@/components/layout/navbar";
+import { getDemoUser, setSession } from "@/lib/auth";
 
 export default async function AppLayout({
   children,
@@ -11,11 +11,12 @@ export default async function AppLayout({
   const session = cookieStore.get("stayscore-session");
 
   if (!session?.value) {
-    redirect("/login");
+    const demoUser = getDemoUser("TRAVEL_MANAGER");
+    await setSession(demoUser!);
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#FAFBFC]">
       <Navbar />
       <main>{children}</main>
     </div>

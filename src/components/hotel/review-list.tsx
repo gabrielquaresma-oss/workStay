@@ -45,7 +45,7 @@ function highlightWorkTerms(text: string): React.ReactNode[] {
   return parts.map((part, i) => {
     if (WORK_TERMS.some((t) => part.toLowerCase() === t.toLowerCase())) {
       return (
-        <mark key={i} className="bg-yellow-200 px-0.5 rounded">
+        <mark key={i} className="bg-amber-100 px-0.5 rounded">
           {part}
         </mark>
       );
@@ -92,7 +92,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
                         className={cn(
                           "h-3 w-3",
                           j < review.rating
-                            ? "fill-yellow-400 text-yellow-400"
+                            ? "fill-amber-400 text-amber-400"
                             : "text-gray-200"
                         )}
                       />

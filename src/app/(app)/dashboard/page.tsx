@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   DollarSign,
   BarChart3,
@@ -52,18 +51,16 @@ interface Insight {
 }
 
 const SIDEBAR_ITEMS = [
-  { id: "overview", label: "Visão Geral", icon: BarChart3 },
-  { id: "hotels", label: "Top Hotéis", icon: Building2 },
+  { id: "overview", label: "Visao Geral", icon: BarChart3 },
+  { id: "hotels", label: "Top Hoteis", icon: Building2 },
   { id: "heatmap", label: "Mapa de Calor", icon: Map },
-  { id: "trends", label: "Tendências", icon: LineChart },
+  { id: "trends", label: "Tendencias", icon: LineChart },
   { id: "insights", label: "Insights", icon: Lightbulb },
 ];
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [activeSection, setActiveSection] = useState("overview");
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
 
   const [topHotels, setTopHotels] = useState<TopHotel[]>([]);
   const [cities, setCities] = useState<CityData[]>([]);
@@ -71,18 +68,6 @@ export default function DashboardPage() {
   const [insights, setInsights] = useState<Insight[]>([]);
 
   useEffect(() => {
-    // Check user role
-    fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.user?.role === "TRAVELER") {
-          router.replace("/search");
-          return;
-        }
-        setUserRole(data?.user?.role ?? null);
-      })
-      .catch(() => {});
-
     // Fetch all data in parallel
     Promise.all([
       fetch("/api/dashboard/top-hotels").then((r) => r.ok ? r.json() : null),
@@ -98,7 +83,7 @@ export default function DashboardPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [router]);
+  }, []);
 
   // KPI calculations
   const totalSpent = topHotels.reduce((sum, h) => sum + h.total_spent, 0);
@@ -114,25 +99,22 @@ export default function DashboardPage() {
     0
   );
 
-  if (!userRole && !loading) {
-    return null; // Redirecting
-  }
-
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
       {/* Sidebar */}
-      <aside className="w-60 border-r bg-card p-4 shrink-0 hidden lg:block">
+      <aside className="w-60 border-r bg-white p-4 shrink-0 hidden lg:block">
         <nav className="space-y-1">
           {SIDEBAR_ITEMS.map((item) => {
             const Icon = item.icon;
+            const isActive = activeSection === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === item.id
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted"
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -145,73 +127,94 @@ export default function DashboardPage() {
         {/* Period filter */}
         <div className="mt-6 pt-4 border-t">
           <label className="text-xs text-muted-foreground font-medium">
-            Período
+            Periodo
           </label>
-          <select className="w-full mt-1 h-9 rounded-md border bg-background px-2 text-sm">
-            <option value="30d">Últimos 30 dias</option>
-            <option value="90d">Últimos 90 dias</option>
-            <option value="12m">Últimos 12 meses</option>
+          <select className="w-full mt-1.5 h-9 rounded-lg border bg-transparent px-2 text-sm cursor-pointer">
+            <option value="30d">Ultimos 30 dias</option>
+            <option value="90d">Ultimos 90 dias</option>
+            <option value="12m">Ultimos 12 meses</option>
           </select>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-6 space-y-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+      <main className="flex-1 p-6 lg:p-8 space-y-8 overflow-y-auto">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visao geral da inteligencia hoteleira
+          </p>
+        </div>
 
         {/* KPI Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loading ? (
             [1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-24 rounded-lg" />
+              <Skeleton key={i} className="h-28 rounded-xl" />
             ))
           ) : (
             <>
-              <Card>
-                <CardContent className="pt-4 flex items-center gap-3">
-                  <DollarSign className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Total em Hospedagens
-                    </p>
-                    <p className="text-xl font-bold">
-                      R$ {totalSpent.toLocaleString("pt-BR")}
-                    </p>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <DollarSign className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Total em Hospedagens
+                      </p>
+                      <p className="text-2xl font-bold tracking-tight mt-0.5">
+                        R$ {totalSpent.toLocaleString("pt-BR")}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-4 flex items-center gap-3">
-                  <BarChart3 className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      StayScore Médio
-                    </p>
-                    <p className="text-xl font-bold">{avgScore}</p>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <BarChart3 className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        StayScore Medio
+                      </p>
+                      <p className="text-2xl font-bold tracking-tight mt-0.5">{avgScore}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-4 flex items-center gap-3">
-                  <Calendar className="h-8 w-8 text-primary" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Reservas no Período
-                    </p>
-                    <p className="text-xl font-bold">{totalBookings}</p>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Calendar className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Reservas no Periodo
+                      </p>
+                      <p className="text-2xl font-bold tracking-tight mt-0.5">{totalBookings}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-4 flex items-center gap-3">
-                  <TrendingDown className="h-8 w-8 text-green-600" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Economia Potencial
-                    </p>
-                    <p className="text-xl font-bold text-green-600">
-                      R$ {Math.round(totalSpent * 0.12).toLocaleString("pt-BR")}
-                    </p>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                      <TrendingDown className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Economia Potencial
+                      </p>
+                      <p className="text-2xl font-bold text-green-600 tracking-tight mt-0.5">
+                        R$ {Math.round(totalSpent * 0.12).toLocaleString("pt-BR")}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -221,25 +224,25 @@ export default function DashboardPage() {
 
         {/* Top Hotels + Heatmap */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Top Hotéis</CardTitle>
+              <CardTitle className="text-lg">Top Hoteis</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-64" />
+                <Skeleton className="h-64 rounded-lg" />
               ) : (
                 <TopHotelsTable hotels={topHotels} />
               )}
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle>Mapa de Calor</CardTitle>
+              <CardTitle className="text-lg">Mapa de Calor</CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <Skeleton className="h-64" />
+                <Skeleton className="h-64 rounded-lg" />
               ) : (
                 <CityHeatmap cities={cities} />
               )}
@@ -248,13 +251,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Price Trends */}
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>Tendência de Preços (12 semanas)</CardTitle>
+            <CardTitle className="text-lg">Tendencia de Precos (12 semanas)</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <Skeleton className="h-64" />
+              <Skeleton className="h-64 rounded-lg" />
             ) : (
               <PriceTrendsChart trends={trends} />
             )}
@@ -266,7 +269,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-3 space-y-3">
             {loading ? (
               [1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-24" />
+                <Skeleton key={i} className="h-24 rounded-lg" />
               ))
             ) : (
               insights.map((insight, i) => (
@@ -276,7 +279,7 @@ export default function DashboardPage() {
           </div>
           <div>
             {loading ? (
-              <Skeleton className="h-32" />
+              <Skeleton className="h-40 rounded-lg" />
             ) : (
               <RoiIndex
                 avgStayscore={avgScore}

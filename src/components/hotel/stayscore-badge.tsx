@@ -12,9 +12,9 @@ const sizeClasses = {
 };
 
 function getScoreColor(score: number): string {
-  if (score >= 80) return "border-[#22C55E] text-[#22C55E]";
-  if (score >= 60) return "border-[#EAB308] text-[#EAB308]";
-  return "border-[#EF4444] text-[#EF4444]";
+  if (score >= 80) return "border-[#16A34A] text-[#16A34A] bg-green-50";
+  if (score >= 60) return "border-[#CA8A04] text-[#CA8A04] bg-amber-50";
+  return "border-[#DC2626] text-[#DC2626] bg-red-50";
 }
 
 export function StayScoreBadge({ score, size = "md" }: StayScoreBadgeProps) {

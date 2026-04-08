@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getOrCreateUser } from "@/lib/auth";
 import { getPlaceDetails, getPhotoUrl } from "@/lib/google-places";
 import { analyzeReviews } from "@/lib/sentiment-analyzer";
 import { calculateStayScore } from "@/lib/stayscore-calculator";
@@ -8,10 +8,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return Response.json({ error: "Não autenticado" }, { status: 401 });
-  }
+  await getOrCreateUser();
 
   const { id } = await params;
 

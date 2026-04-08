@@ -1,4 +1,4 @@
-import { getCurrentUser } from "@/lib/auth";
+import { getOrCreateUser } from "@/lib/auth";
 import { getPlaceDetails, searchNearby } from "@/lib/google-places";
 import client from "@/lib/claude-client";
 
@@ -60,10 +60,7 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return Response.json({ error: "Não autenticado" }, { status: 401 });
-  }
+  await getOrCreateUser();
 
   const { id } = await params;
   const { searchParams } = new URL(request.url);

@@ -56,7 +56,7 @@ export function WorkspaceCard({
             <span>{workspace.distance_meters}m</span>
             {workspace.google_rating && (
               <span className="flex items-center gap-0.5">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                 {workspace.google_rating}
               </span>
             )}

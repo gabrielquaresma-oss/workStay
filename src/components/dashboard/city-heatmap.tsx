@@ -20,9 +20,9 @@ interface CityHeatmapProps {
 let optionsSetMap = false;
 
 function getCircleColor(score: number): string {
-  if (score >= 80) return "#22C55E";
-  if (score >= 60) return "#EAB308";
-  return "#EF4444";
+  if (score >= 80) return "#16A34A";
+  if (score >= 60) return "#CA8A04";
+  return "#DC2626";
 }
 
 export function CityHeatmap({ cities }: CityHeatmapProps) {

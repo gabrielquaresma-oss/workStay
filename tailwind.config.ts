@@ -8,7 +8,7 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#7C3AED",
+          DEFAULT: "#2872FA",
           foreground: "#FFFFFF",
         },
       },

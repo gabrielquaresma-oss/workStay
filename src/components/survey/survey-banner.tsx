@@ -36,8 +36,10 @@ export function SurveyBanner() {
   );
 
   return (
-    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3 mb-4">
-      <MessageSquare className="h-5 w-5 text-primary shrink-0" />
+    <div className="bg-gradient-to-r from-primary/5 to-[#009EFB]/5 border border-primary/15 rounded-xl p-4 flex items-center gap-3 mb-4">
+      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <MessageSquare className="h-5 w-5 text-primary" />
+      </div>
       <div className="flex-1">
         <p className="text-sm font-medium">
           Avalie sua estadia no {survey.hotel_name}
@@ -48,13 +50,14 @@ export function SurveyBanner() {
       </div>
       <Button
         size="sm"
+        className="rounded-full"
         onClick={() => router.push(`/survey/${survey.booking_id}`)}
       >
         Avaliar agora
       </Button>
       <button
         onClick={() => setDismissed(true)}
-        className="text-muted-foreground hover:text-foreground p-1"
+        className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-muted transition-colors cursor-pointer"
       >
         <X className="h-4 w-4" />
       </button>
