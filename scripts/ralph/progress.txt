@@ -172,6 +172,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Auth routes are outside route groups — placed in `src/app/api/auth/`
 ---
 
+## 2026-04-08 - US-014
+- What was implemented: Navbar component with search, user avatar, and dropdown menu
+- Files changed:
+  - src/components/layout/navbar.tsx (new — client component with auth state)
+- **Learnings for future iterations:**
+  - Navbar fetches user from /api/auth/me on mount. Use it as a client component.
+  - Lucide-react icons: Search, LogOut, User, LayoutDashboard
+  - User initials extracted from name for avatar circle
+  - Dashboard link shown only for TRAVEL_MANAGER and FINANCE_MANAGER roles
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
