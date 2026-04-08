@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotelCard } from "@/components/hotel/hotel-card";
 import { SurveyBanner } from "@/components/survey/survey-banner";
+import { ErrorState } from "@/components/ui/error-state";
 import type { HotelSearchResult } from "@/types/hotel";
 
 export default function SearchPage() {
@@ -19,6 +20,7 @@ export default function SearchPage() {
   const [results, setResults] = useState<HotelSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [error, setError] = useState(false);
 
   // Filters
   const [minScore, setMinScore] = useState(0);
@@ -31,6 +33,7 @@ export default function SearchPage() {
       if (!q.trim()) return;
       setLoading(true);
       setSearched(true);
+      setError(false);
 
       const params = new URLSearchParams({ q: q.trim() });
       if (minScore > 0) params.set("min_score", String(minScore));
@@ -47,6 +50,7 @@ export default function SearchPage() {
         setResults(data.hotels ?? []);
       } catch {
         setResults([]);
+        setError(true);
       } finally {
         setLoading(false);
       }
@@ -189,8 +193,13 @@ export default function SearchPage() {
         </div>
       )}
 
+      {/* Error state */}
+      {!loading && error && (
+        <ErrorState onRetry={() => doSearch(query)} />
+      )}
+
       {/* No results */}
-      {!loading && searched && results.length === 0 && (
+      {!loading && searched && !error && results.length === 0 && (
         <div className="text-center py-16">
           <h2 className="text-xl font-semibold text-muted-foreground">
             Nenhum hotel encontrado para essa busca.

@@ -402,6 +402,17 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Touch targets: h-11 (44px) on buttons and inputs
 ---
 
+## 2026-04-08 - US-042
+- What was implemented: Error states with retry, loading skeletons, empty states across all pages
+- Files changed:
+  - src/components/ui/error-state.tsx (new — reusable error component with retry button)
+  - src/app/(app)/search/page.tsx (updated — added error state with retry)
+- **Learnings for future iterations:**
+  - ErrorState component at src/components/ui/error-state.tsx is reusable across pages
+  - All API routes already return proper HTTP status codes (400, 401, 403, 500)
+  - Search, hotel detail, and dashboard pages all have skeleton loaders and empty states
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
