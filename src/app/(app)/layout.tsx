@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { OnflyNavbar } from "@/components/layout/onfly-navbar";
-import { getDemoUser, setSession } from "@/lib/auth";
 
 export default async function AppLayout({
   children,
@@ -11,8 +11,7 @@ export default async function AppLayout({
   const session = cookieStore.get("stayscore-session");
 
   if (!session?.value) {
-    const demoUser = getDemoUser("TRAVEL_MANAGER");
-    await setSession(demoUser!);
+    redirect("/api/auth/auto-login");
   }
 
   return (
