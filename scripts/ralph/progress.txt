@@ -254,6 +254,15 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Photos limited to 5 via slice
 ---
 
+## 2026-04-08 - US-022
+- What was implemented: Review list component with work-relevance highlights and sentiment tags
+- Files changed:
+  - src/components/hotel/review-list.tsx (new)
+- **Learnings for future iterations:**
+  - Work terms highlighted in yellow via regex split + mark tag
+  - Sentiment tags shown only for strong signals: score >= 0.7 (Positivo) or <= 0.3 (Negativo)
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:

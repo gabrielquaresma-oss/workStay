@@ -362,8 +362,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 22,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Review list with work-term highlighting, sentiment tags (Positivo/Negativo), relevance badges."
     },
     {
       "id": "US-023",
