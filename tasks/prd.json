@@ -665,8 +665,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 40,
-      "passes": false,
-      "notes": "Follow wireframe from PRD section 9.5."
+      "passes": true,
+      "notes": "Full dashboard with sidebar, KPIs, top hotels table, city heatmap, price trends chart, insights, ROI index."
     },
     {
       "id": "US-041",
