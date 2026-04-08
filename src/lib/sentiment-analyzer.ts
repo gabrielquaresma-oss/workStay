@@ -77,28 +77,29 @@ export async function analyzeReviews(
     .map((r, i) => `Review ${i + 1} (rating: ${r.rating}/5):\n${r.text}`)
     .join("\n\n");
 
-  const message = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: `Analyze these reviews for the hotel "${hotelName}":\n\n${reviewsText}`,
-      },
-    ],
-  });
-
-  const textBlock = message.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    return NEUTRAL_RESULT;
-  }
-
   try {
+    const message = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `Analyze these reviews for the hotel "${hotelName}":\n\n${reviewsText}`,
+        },
+      ],
+    });
+
+    const textBlock = message.content.find((b) => b.type === "text");
+    if (!textBlock || textBlock.type !== "text") {
+      return NEUTRAL_RESULT;
+    }
+
     const jsonMatch = textBlock.text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) return NEUTRAL_RESULT;
     return JSON.parse(jsonMatch[0]) as SentimentResult;
-  } catch {
+  } catch (error) {
+    console.error(`Sentiment analysis failed for "${hotelName}":`, error);
     return NEUTRAL_RESULT;
   }
 }

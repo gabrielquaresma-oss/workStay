@@ -37,3 +37,25 @@ export interface HotelSearchResult {
   price_per_night: number | null;
   highlights: string[];
 }
+
+export interface FeaturedHotelCard {
+  id: string;
+  name: string;
+  location: string;
+  imageUrl: string | null;
+  workScore: number;
+  scoreColor: "green" | "yellow" | "red";
+  tags: string[];
+  pricePerNight: number | null;
+}
+
+export interface FeaturedSection {
+  id: string;
+  title: string;
+  badge: string;
+  badgeVariant: string;
+  subtitle: string;
+  iconBg: string;
+  iconColor: string;
+  hotels: FeaturedHotelCard[];
+}

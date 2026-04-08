@@ -8,7 +8,73 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { HotelCard } from "@/components/hotel/hotel-card";
 import { SurveyBanner } from "@/components/survey/survey-banner";
 import { ErrorState } from "@/components/ui/error-state";
-import type { HotelSearchResult } from "@/types/hotel";
+import { HeroSection } from "@/components/home/hero-section";
+import { DynamicTitle } from "@/components/home/dynamic-title";
+import { FeaturedSections } from "@/components/home/featured-sections";
+import { Footer } from "@/components/layout/footer";
+import type { HotelSearchResult, FeaturedSection } from "@/types/hotel";
+
+// ==================== HOMEPAGE VIEW ====================
+
+function HomepageView() {
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [sections, setSections] = useState<FeaturedSection[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const params = selectedCity
+      ? `?city=${encodeURIComponent(selectedCity)}`
+      : "";
+    fetch(`/api/hotels/featured${params}`)
+      .then((res) => res.json())
+      .then((data) => setSections(data.sections ?? []))
+      .catch(() => setSections([]))
+      .finally(() => setLoading(false));
+  }, [selectedCity]);
+
+  return (
+    <div className="bg-[#F7F8FA]">
+      <HeroSection
+        selectedCity={selectedCity}
+        onCitySelect={setSelectedCity}
+      />
+      <DynamicTitle selectedCity={selectedCity} />
+
+      {loading ? (
+        <div className="px-[100px] pb-14">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="mt-10">
+              <div className="flex items-center gap-2 mb-4">
+                <Skeleton className="w-7 h-7 rounded-lg" />
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-5 w-24 rounded-full" />
+              </div>
+              <div className="flex gap-3.5">
+                {[1, 2, 3, 4, 5].map((j) => (
+                  <div key={j} className="flex-1">
+                    <Skeleton className="h-[130px] rounded-t-xl" />
+                    <div className="p-3 space-y-2">
+                      <Skeleton className="h-3 w-3/4" />
+                      <Skeleton className="h-2 w-1/2" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <FeaturedSections sections={sections} />
+      )}
+
+      <Footer />
+    </div>
+  );
+}
+
+// ==================== SEARCH RESULTS VIEW ====================
 
 const SUGGESTED_CITIES = [
   { label: "Sao Paulo", query: "Hoteis em Sao Paulo" },
@@ -18,7 +84,7 @@ const SUGGESTED_CITIES = [
   { label: "Brasilia", query: "Hoteis em Brasilia" },
 ];
 
-export default function SearchPage() {
+function SearchResultsView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
@@ -47,7 +113,6 @@ export default function SearchPage() {
       if (maxPrice > 0) params.set("max_price", String(maxPrice));
       if (sort !== "stayscore") params.set("sort", sort);
 
-      // Update URL
       router.replace(`/search?${params.toString()}`);
 
       try {
@@ -65,7 +130,6 @@ export default function SearchPage() {
     [minScore, maxPrice, sort, router]
   );
 
-  // Auto-search on mount if query in URL
   useEffect(() => {
     if (initialQuery) {
       doSearch(initialQuery);
@@ -92,7 +156,6 @@ export default function SearchPage() {
               Hoteis avaliados por viajantes corporativos com base em Wi-Fi, espaco de trabalho e produtividade
             </p>
 
-            {/* Hero search bar */}
             <div className="mt-8 max-w-2xl mx-auto">
               <div className="relative">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -115,7 +178,6 @@ export default function SearchPage() {
               </div>
             </div>
 
-            {/* Suggested cities */}
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {SUGGESTED_CITIES.map((city) => (
                 <button
@@ -135,12 +197,10 @@ export default function SearchPage() {
         </div>
       )}
 
-      {/* Survey banner */}
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <SurveyBanner />
       </div>
 
-      {/* Search bar when already searched (compact mode) */}
       {searched && (
         <div className="max-w-5xl mx-auto px-4 pt-6">
           <div className="flex gap-2 mb-4">
@@ -172,7 +232,6 @@ export default function SearchPage() {
             </Button>
           </div>
 
-          {/* Filters */}
           {showFilters && (
             <div className="flex flex-wrap gap-4 mb-4 p-4 bg-white rounded-xl border transition-all">
               <div className="flex items-center gap-2">
@@ -223,17 +282,14 @@ export default function SearchPage() {
         </div>
       )}
 
-      {/* Results area */}
       <div className={searched ? "bg-[#F2F5F7] py-6 mt-2" : ""}>
         <div className="max-w-5xl mx-auto px-4">
-          {/* Results counter */}
           {hasResults && results.length > 0 && (
             <p className="text-sm text-muted-foreground mb-4">
               {results.length} hoteis encontrados
             </p>
           )}
 
-          {/* Loading skeleton */}
           {loading && (
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
@@ -253,7 +309,6 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Results */}
           {!loading && results.length > 0 && (
             <div className="space-y-4">
               {results.map((result) => (
@@ -262,7 +317,6 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Empty state (initial) */}
           {!loading && !searched && (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-primary/10 mb-6">
@@ -277,12 +331,10 @@ export default function SearchPage() {
             </div>
           )}
 
-          {/* Error state */}
           {!loading && error && (
             <ErrorState onRetry={() => doSearch(query)} />
           )}
 
-          {/* No results */}
           {!loading && searched && !error && results.length === 0 && (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-muted mb-6">
@@ -300,4 +352,17 @@ export default function SearchPage() {
       </div>
     </div>
   );
+}
+
+// ==================== PAGE COMPONENT ====================
+
+export default function SearchPage() {
+  const searchParams = useSearchParams();
+  const hasQuery = searchParams.has("q") && searchParams.get("q")?.trim();
+
+  if (hasQuery) {
+    return <SearchResultsView />;
+  }
+
+  return <HomepageView />;
 }

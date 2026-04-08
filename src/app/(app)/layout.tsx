@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { Navbar } from "@/components/layout/navbar";
+import { OnflyNavbar } from "@/components/layout/onfly-navbar";
 import { getDemoUser, setSession } from "@/lib/auth";
 
 export default async function AppLayout({
@@ -17,7 +17,7 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen bg-[#FAFBFC]">
-      <Navbar />
+      <OnflyNavbar />
       <main>{children}</main>
     </div>
   );
