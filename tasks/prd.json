@@ -346,8 +346,8 @@
         "Typecheck passes"
       ],
       "priority": 21,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Returns full hotel details, StayScore breakdown, analyzed reviews sorted by work relevance, photo URLs, simulated prices."
     },
     {
       "id": "US-022",

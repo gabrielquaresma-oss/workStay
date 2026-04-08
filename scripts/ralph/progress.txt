@@ -244,6 +244,16 @@ Started: Wed Apr  8 07:44:04 AM PDT 2026
   - Filters: minScore, maxPrice, sort — passed as query params to API
 ---
 
+## 2026-04-08 - US-021
+- What was implemented: Hotel detail API route with full details, scores, reviews, prices
+- Files changed:
+  - src/app/api/hotels/[id]/route.ts (new)
+- **Learnings for future iterations:**
+  - Next.js 16: params in route handlers are a Promise — must `await params`
+  - Work-relevance threshold: reviews with overall_work_relevance > 0.4 are marked as work-relevant
+  - Photos limited to 5 via slice
+---
+
 ## 2026-04-08 - US-010
 - What was implemented: Auth helpers with demo users and session management via httpOnly cookies
 - Files changed:
